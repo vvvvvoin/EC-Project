@@ -43,3 +43,10 @@
 - 받은 데이터를 분류하는 작업과 안드로이드에서 입력한 데이터를 스프링으로 보내 글 등록하는 과정진행해야 될듯
 - 추가적으로 다양한 요청방식에 대한 retrofit의 인터페이스 관련해서 til작성
 
+### 2020.07.18
+- 이전에 받은 데이터를 FragmentStateAdapter를 어탭터를 사용하는 ViewPager로 연동되는 fragment에 데이터를 전달시켰다
+- RecyclerView와 같은 방식이였음
+- StackOverFlow에서도 비슷한 방식을 쓰는거보니 onBindViewHolder로 하는게 맞는거 같은데 FragmentStateAdapter에대한 정보가 주변에 많이 부족하다
+- 아직 TIL에 다양한 요청방식에 대한 retrofit의 인터페이스 관련해서 작성은 다음으로 미루고 오늘한 Bind만 작성했다
+- 또한 글 등록 요청을 서버에 보내는 것도 밀렸다
+
