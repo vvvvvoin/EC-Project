@@ -68,3 +68,40 @@
 - Retrofit + RxJava을 이용하면 MVVM 디자인 패턴을 사용하는거 같다.
 - 인코딩완료 후 프로젝트를 간단한 MVVM 패턴으로 변경해본다
 
+### 2020.07.21
+
+- 인코딩 문제때문에 문제해결을 하던 중 okHttp + RxJava + Retrofit으로 하나의 클래스로 만들어 좀 더 간결하게 만듬
+- 인코딩 문제는 여전했지만, 많은 글들을 참고했고 똑같이 했는데 안되는걸 보고 스프링 인코딩 문제라 생각하고 찾던 중 web.xml에
+
+```xml
+<filter> 
+    <filter-name>encodingFilter</filter-name> 
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class> 
+    <init-param> 
+       <param-name>encoding</param-name> 
+       <param-value>UTF-8</param-value> 
+    </init-param> 
+    <init-param> 
+       <param-name>forceEncoding</param-name> 
+       <param-value>true</param-value> 
+    </init-param> 
+</filter> 
+<filter-mapping> 
+    <filter-name>encodingFilter</filter-name> 
+    <url-pattern>/*</url-pattern> 
+</filter-mapping> 
+```
+
+- `<filter-mapping>`의 `<url-pattern>`이 기존에 `/`로 된걸 `/*` 바꾸고
+- `forceEncoding`을 추가했더니
+![4](image/4.JPG)
+- 기존 인코딩 깨지던 것에서 POST방식으로도 정상적으로 서버에 요청할 수 있게 되었다
+- 인코딩 설정 전에는 GET방식은 잘 되었다
+- 참고 : [https://gmlwjd9405.github.io/2019/01/01/spring-utf8.html](https://gmlwjd9405.github.io/2019/01/01/spring-utf8.html)
+- MVVM 패턴으로 변경하는 일도 어렵고 MVVM 패턴을 이해하는데 많은 시간이 필요할듯
+- 구글, 네이버, 카카오 맵 API 적용시키는 중(현재는 구글맵 적용중)
+
+<img src="image/5.JPG" alt="5" style="zoom:33%;" />
+
+
+
