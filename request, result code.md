@@ -14,6 +14,7 @@ MARKER_POPUP_VEIW = 5005
 	- 마커뷰 팝업창
 -  resultCode
 	- 5006 : 돌아가기
+	- 5007 : 수정하고 돌아감
 
 
 
