@@ -7,6 +7,7 @@ MARKER_POPUP_REGISTER = 5000
 -  resultCode
 	- 5000 : 마커등록 팝업 등록
 	- 5001 : 마커등록 팝업 취소
+	- 5003 : 이미지URI포함 마커등록
 
 ### 마커 뷰
 -  requestCode
