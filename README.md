@@ -13,6 +13,7 @@
     - DB데이터를 ClusterManager를 통해 GoogleMap에 Marker 추가
   - RetrofitRxJava
     - 스프링서버 접속하여 DB data CRUD처리
+    - 사진업로드 기능
   - Coroutine
     - mobileDB data 처리
   - 스프링서버와 동기화처리
