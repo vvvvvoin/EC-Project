@@ -324,3 +324,29 @@
 - 마커 초기등록시 바로 클릭하면 seq가 지정안돼는 문제 디버깅해야함 하지만 재실행 후에는 동기화 처리로 seq값이 설정됨
 
 ![16](image/16.JPG)
+
+### 2020.08.08
+
+- 서버와 연결 안될시 비동기 데이터를 처리할 수 있게 만듬
+
+  - 현재 사진을 포함한 비동기 데이터에서 uri를 저장 후 실행후 서버연결을 확인 후 동기화 처리 중 다음 오류발생하여 처리해야함
+
+  - ContentResolver 관련 문제인듯한데 다른 개발자와 같은 형태코드인데 내 애플리케이션에서만 다음 오류가 뜬다
+
+    ```
+    java.lang.SecurityException: Permission Denial: opening provider com.android.providers.media.MediaDocumentsProvider from ProcessRecord{59c5f6d 356:com.example.firstkotlinapp/u0a68} (pid=356, uid=10068) requires that you obtain access using ACTION_OPEN_DOCUMENT or related APIs
+    ```
+
+  - 구조적으로는 동기, 비동기 데이터를 처리할 수 있다
+
+- 이전부터 지속적으로 seq 지정안된 문제를 서버연결되거나, 안되거나 모두 정상적으로 처리할 수 있게 수정함
+
+- 중복되는 변수 선언 삭제
+
+- CRUD 기능 중 삭제기능 추가예정
+
+- 탭 네비게이션을 이용하여 다른 뷰도 만들어 기능추가 예정
+  
+  - 수동 동기화
+  
+- multipart + retrofit으로 이미지 전송하는 것과 그것을 다시 받는 방법 til 정리예정
