@@ -350,3 +350,42 @@
   - 수동 동기화
   
 - multipart + retrofit으로 이미지 전송하는 것과 그것을 다시 받는 방법 til 정리예정
+
+### 2020.08.09
+
+- 비동기 데이터 오류를 해결하기 위해 관련 테스트 앱을 만들어서 오류가 발생하는 기능인 ContentResolver 문제 해결시도함(테스트 앱으로 원인을 파악 못함)
+- 문제에 다시 설명하면 서버와 연결안됬을시 마커를 등록할때 사진과 함께 할시 DB에 사진을 넣는 것이 아닌 uri를 스트링으로 변환하여 DB에 저장했다가 서버와 연결이 되면은 toUri()로 변환하여 기존의 서버연결이 됐을때와 마찬가지의 메소드를 실행했지만 ContentResolver에서 다음 오류가 발생했다
+
+```
+java.lang.SecurityException: Permission Denial: opening provider com.android.providers.media.MediaDocumentsProvider from ProcessRecord{59c5f6d 356:com.example.firstkotlinapp/u0a68} (pid=356, uid=10068) requires that you obtain access using ACTION_OPEN_DOCUMENT or related APIs
+```
+
+- 해결하였고 문제 발생 원인은 몇가지가 존재했다
+  - 우선 퍼미션오류에 관련해서다
+    - 서버와 연결시 앱 실행후 마커에 사진과 등록할시 해당 uri에 시스템 앱이 uri권한을 부여하고 그 즉시 ContentResolver를 통해 uri을 retrofit으로 전송하는 형태로 변환시켰다.
+    - 하지만 앱이 종료되면 시스템 앱이 부여한 uri에 대한 권한은 사라진다
+    - 나는 서버와 연결안됬을시 마커에 사진과 등록 후 앱을 종료했고, 이때 권한이 사라졌고, 앱을 다시 실행하고 동기화 처리과정 중 mDB에서 권한이 없는 uri를 잡고 ContentResolver를 사용했기에 위에 대한 오류가 발생한것이다
+    
+  - `requires that you obtain access using ACTION_OPEN_DOCUMENT or related APIs` 에 대해서는
+    - 파일을 선택하기 위해 `startActivityForResult`를 수행하기 위해 `intent`를 설정하는 과정에서`action`이 `ACTION_OPEN_DOCUMENT`이 아닌 `ACTION_GET_CONTENT`로 지정되있었다.
+    - 서버와 연결될을 시에는 문제 없었지만 다음에 설명하는 권한 유지를 위해서는 변경되어야 했다
+    
+  - 유지되지 않는 권한
+  
+    - 구글 developer에서 권한유지에 대한 문서를 찾았다
+    - [https://developer.android.com/guide/topics/providers/document-provider.html#permissions](https://developer.android.com/guide/topics/providers/document-provider.html#permissions)  (중요한 내용은 아래있더라)
+    - 해당 문서에 의하면 파일을 선택하고 작업을 처리 후 권한이 없어 다시 파일 선택기로 넘어가서 선택하게하는 곤란한 작업을 막아준다
+    - 그래서 나도 이에 대해서 서버와 연결안되고 마커와 이미지를 등록했을때 `onActivityResult`에서 해당 uri에 권한을 유지시키도록 했다
+    - 결국 앱을 삭제하는 상황이 아닌이상 동기화 처리를 완료했다
+
+- 지금까지 많은 문제들이 있었지만 지금까지 **이 문제가 가장어려웠고** 안드로이드에 대해 구조에 많은 이해가 필요했다
+
+- 문제를 해결하고 남은 더미 데이터삭제, 일부 메소드 다른 클래스로 변경함
+
+- CRUD 기능 중 삭제기능 추가예정
+
+- 탭 네비게이션을 이용하여 다른 뷰도 만들어 기능추가 예정
+
+  - 수동 동기화
+
+- multipart + retrofit으로 이미지 전송하는 것과 그것을 다시 받는 방법 til 정리예정
