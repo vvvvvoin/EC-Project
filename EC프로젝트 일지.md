@@ -418,3 +418,15 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 - 디자인 너무 오래걸린다
 
 ![18](image/18.JPG)
+
+### 2020.08.13
+
+- back버튼 로직구현, viewPager로 검색기록, 카테고리로 나누고 프래그먼트로 각각 보여줄수 있게 만듬
+- 검색프래그먼트가 실행되면 자동으로 키보드창이 뜨게만듬
+  - 첫 실행할때는 작동하지 않고 앱을 내리고 열면 뜨는 형태이다
+  - 각 상황에 맞게 키보드가 자동적으로 나타나게 수정할 예정
+- 카테고리 탭 디자인 구상 중
+
+![19](image/19.JPG)
+
+![19](image/20.JPG)
