@@ -445,3 +445,22 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
     - 체크박스 컴포넌트로 하면 빨라질까?
 
 ![21](image/21.JPG)
+
+### 2020.08.15
+
+- 수정안함
+
+### 2020.08.16
+
+- 삭제 디버깅관련
+
+  - LinearLayoutManager관련해서 버그가 존재하여 새롭게 리니어 레이아웃 매니저를 상속받은 클래스를 생성하여 리싸이클러뷰 매니저로 사용함
+  - 삭제리스트 프래그먼트에서 삭제기능 구현완료
+  - ~~하지만 삭제 후 다시 리스틀 넘어오면 즉각 반영이 안되는 문제있음~~ 구조를 바꿔서 해결함
+    - 클릭시 refresh됨
+    - notifyChanged 잘 안됨
+
+- 카테고리탭 작업 중
+  - FlexboxLayout을 이용하여 viewType에 맞게 그리드 형태로 변환시키는 중
+  - 타입과 구성요소로 viewType을 나눔
+  - 현재 나누어서 타입을 나누는 것이 적용안된다면 하나의 타입으로 수정할 예정
