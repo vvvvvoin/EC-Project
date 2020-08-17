@@ -464,3 +464,14 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
   - FlexboxLayout을 이용하여 viewType에 맞게 그리드 형태로 변환시키는 중
   - 타입과 구성요소로 viewType을 나눔
   - 현재 나누어서 타입을 나누는 것이 적용안된다면 하나의 타입으로 수정할 예정
+
+### 2020.08.17
+
+- 카테고리 탭 디자인 완성
+  - 아이템이 추가됨에 따라 리스트 수정과 아이콘 수정이 있을 예정
+  - FlexboxLayout과 ViewType을 이용하여 타입과 구성요소로 나누어 카테고리를 분류시켰다
+  - 두개의 타입으로 나누는 것으로 완성시킴
+
+<img src="image/22.JPG" alt="22" style="zoom:50%;" />
+
+- 소스파일 업로드

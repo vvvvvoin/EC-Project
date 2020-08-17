@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="10dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="제목"
+            android:layout_marginStart="10dp"
+            tools:ignore="RtlCompat" />
+
+        <EditText
+            android:id="@+id/popup_title_editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            tools:ignore="RtlCompat" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="작성자"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="10dp"
+            tools:ignore="RtlCompat"/>
+
+        <EditText
+            android:id="@+id/popup_writer_editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            tools:ignore="RtlCompat"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="내용"
+            android:layout_marginStart="10dp"
+            tools:ignore="RtlCompat"
+            android:layout_marginTop="20dp"/>
+
+        <EditText
+            android:id="@+id/popup_content_editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            tools:ignore="RtlCompat"/>
+
+
+        <Button
+            android:id="@+id/popup_imageUpload_button"
+            android:text="사진 업로드"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            tools:ignore="RtlCompat"/>
+        <ImageView
+            android:id="@+id/popup_imageView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxHeight="100dp"
+            android:maxWidth="100dp"
+            android:adjustViewBounds="true"
+            android:scaleType="centerInside"
+            android:layout_marginStart="5dp"
+            tools:ignore="RtlCompat"/>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginBottom="20dp">
+
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:id="@+id/register"
+                android:text="등록"
+                android:layout_marginEnd="20dp"
+                tools:ignore="RtlCompat" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:id="@+id/cancel"
+                android:text="취소"
+                android:layout_marginStart="20dp"
+                tools:ignore="RtlCompat" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
