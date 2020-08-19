@@ -475,3 +475,19 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 <img src="image/22.JPG" alt="22" style="zoom:50%;" />
 
 - 소스파일 업로드
+
+### 2020.08.18
+
+- 작업없음
+
+### 2020.08.19
+
+- 검색기능을 위해 프래그먼트와 액티비티간에 데이터 전달이 필요함
+  - 인터페이스 리스너를 처음에 적용했는데 잘 안됬음
+  - 최근 LiveData를 통해서 프래그먼트간, 프래그먼트와 액티비트간에 데이터 전달을 쉽게하는것을 알게됨
+  - LiveData를 이용하여 프래그먼트에서 검색한 검색어 데이터를 액티비티에 넘겨줌
+  - observe를 통해 감지하므로 그와 동시에 서버와 연결하여 검색어와 연관된 마커를 리스트, 화면이동을 통해 보여줄 예정
+  - 검색 프래그먼트의 리스트에도 관련 연관검색어를 보여줄 수 있도록 수정하겠다
+  - sharedPreference로 검색기록 변경예정
+
+![23](image/23.GIF)
