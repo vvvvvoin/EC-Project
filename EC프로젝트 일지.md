@@ -491,3 +491,17 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
   - sharedPreference로 검색기록 변경예정
 
 ![23](image/23.GIF)
+
+### 2020.08.20
+- 기존에 마커리스트에서 검색어 키워드 여부에 따라 구분하여 컨트롤러 수정함
+- 검색어는 마커의 제목, 내용 두 가지에서 찾는다
+- 현재는 찾은 마커가 1개일 경우 해당 마커로 이동시켰다
+
+![25](image/25.GIF)
+
+- 마커가 2개 이상일때에는 어떻게 할지 구상중에 있다
+	- Bottom Sheet를 이용하여 리스트를 보여주는 형태
+	- 스와이프로 넘겨서 지도와 함께 마커의 위치와 정보를 보여주는 형태
+![24](image/24.JPG)
+
+- 현재는 BottomSheet로 하고있는데 기존의 xml 디자인과 겹치는 문제로 수정중에 있다
