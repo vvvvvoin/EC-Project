@@ -497,7 +497,7 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 - 검색어는 마커의 제목, 내용 두 가지에서 찾는다
 - 현재는 찾은 마커가 1개일 경우 해당 마커로 이동시켰다
 
-![25](image/25.GIF)
+![25](image/25.gif)
 
 - 마커가 2개 이상일때에는 어떻게 할지 구상중에 있다
 	- Bottom Sheet를 이용하여 리스트를 보여주는 형태
