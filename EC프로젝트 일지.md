@@ -501,7 +501,10 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 
 - 마커가 2개 이상일때에는 어떻게 할지 구상중에 있다
 	- Bottom Sheet를 이용하여 리스트를 보여주는 형태
-	- 스와이프로 넘겨서 지도와 함께 마커의 위치와 정보를 보여주는 형태
+	
+- 스와이프로 넘겨서 지도와 함께 마커의 위치와 정보를 보여주는 형태
+
 ![24](image/24.JPG)
+	
 
 - 현재는 BottomSheet로 하고있는데 기존의 xml 디자인과 겹치는 문제로 수정중에 있다
