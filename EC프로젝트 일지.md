@@ -502,9 +502,24 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 - 마커가 2개 이상일때에는 어떻게 할지 구상중에 있다
 	- Bottom Sheet를 이용하여 리스트를 보여주는 형태
 	
-- 스와이프로 넘겨서 지도와 함께 마커의 위치와 정보를 보여주는 형태
+	- 스와이프로 넘겨서 지도와 함께 마커의 위치와 정보를 보여주는 형태
 
 ![24](image/24.JPG)
 	
 
 - 현재는 BottomSheet로 하고있는데 기존의 xml 디자인과 겹치는 문제로 수정중에 있다
+
+### 2020.08.21
+
+- BottomSheet와 기존XML과 겹치는 문제 해결
+- 다수의 검색결과를 Retrofit+Coroutine으로 bottomSheet의 리싸이클러뷰로 나타냈다
+
+![26](image/26.GIF)
+
+- 아이템과 bottomSheet의 디자인은 수정할 예정
+- 기존의 Retrofit과 Coroutine이 서로 싱크문제로 함께 쓸 수 없었는데 이번에 다시 시도하여 같이 쓸 수 있게 수정함
+- bottomSheet의 디자인은 2개가 될 예정
+  - recyclerView로 리스트로 보는 형태
+  - ViewPager를 이용하여 좌우로 스와이프하여 아이템을 보는 형태
+
+- 디자인 2개가 완료 후 clusterManager와 함게 로직처리예정
