@@ -523,3 +523,17 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
   - ViewPager를 이용하여 좌우로 스와이프하여 아이템을 보는 형태
 
 - 디자인 2개가 완료 후 clusterManager와 함게 로직처리예정
+
+### 2020.08.22
+
+- retrofit + coroutine을 통한 인터넷접속은 처음에는 간편해 보였으나 예외처리를 해주어야하는 단점이 있다
+- 리턴타입이 single 등 이 아니여서 RxJAVA를 사용하지 못해 예외처리를 해줘야한다
+- ViewPager2와 BootomSheet를 활용하여 검색결과를 나타내게 하였다
+
+![27](image/27.GIF)
+
+- viewPager2와 BottomSheet간의 터치이벤트가 문제가 있어서 수정해야함
+
+- 2개의 디자인을 다듬고 구글맵과 연동예정
+
+- recyclerView, ViewPager는 viewType을 나누어 하나 어탭터로 사용함
