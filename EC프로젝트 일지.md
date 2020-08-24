@@ -537,3 +537,14 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 - 2개의 디자인을 다듬고 구글맵과 연동예정
 
 - recyclerView, ViewPager는 viewType을 나누어 하나 어탭터로 사용함
+
+### 2020.08.24
+
+- 작업없음
+
+### 2020.08.25
+
+- 구글맵처럼 마커를 클릭시 CoordinatorLayout과 bottomSheet를 이용하여 보여줄려고 했는데 상당히 어럽다
+- 관련 라이브러리가 있는데 많이 불안정하고 아직 정식버전이 없어서 다양한 걸로 적용해봐야겠다
+
+![28](image/28.GIF)
