@@ -548,3 +548,27 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 - 관련 라이브러리가 있는데 많이 불안정하고 아직 정식버전이 없어서 다양한 걸로 적용해봐야겠다
 
 ![28](image/28.GIF)
+
+### 2020.08.26
+
+- 카카오, 구글 맵과 다양한 샘플앱을 보았고, 라이브러리 없이 구현할 수 있는 방법을 찾았다
+- 결론은 2개의 bottomSheet가 필요하다
+  - 간략한 정보를 보여주는 작은 bottomSheet
+  - 작은 bottomSheet를 위로 스와이프 할 경우(클릭, 스와이프 등의 이벤트)  CoordinatorLayout + AppBarLayout + CollapsingToolbarLayout + NestedScrollView 조합으로 이루어진 전체정보가 담긴 bottomSheet가 필요하다
+
+- 첫번째 sheet는 기존에 만든거를 활용하면 된다
+- 두번째 sheet는 샘플로 만들었다
+
+![29](image/29.GIF)
+
+- 두가지 스타일을 맞추고 자연스럽게 이벤트 동작하게 하면 카카오, 구글처럼 마커 이벤트를 만들 수 있다
+
+### 2020.08.27
+
+- 26일 NestedScrollView가 비정상적으로 작동하는 문제 디버깅
+  - 스크롤 뷰에 내용이 더 있는데 스크롤이 일정구간에서 멈춰서 다 안보였음
+- 스와이프로 상세내용이 bottomShett를 창을 내리고 이전 BottomSheet를 보여주도록 하였음
+
+![30](image/30.GIF)
+
+- 모든 디자인을 통일시키고 상세뷰를 내릴때 다시 viewPager가 나타날 수 있도록 수정할 예정
