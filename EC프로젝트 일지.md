@@ -572,3 +572,23 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 ![30](image/30.GIF)
 
 - 모든 디자인을 통일시키고 상세뷰를 내릴때 다시 viewPager가 나타날 수 있도록 수정할 예정
+
+### 2020.08.28
+
+- 작업없음
+
+### 2020.08.29
+
+- 드래그로 viewPager를 이동시켜 BottomSheet가 나오게 할려했는데 실패했다.
+- 간단히 클릭과 스와이프로 상세뷰가 나타나게 했다.
+
+![31](image/31.GIF)
+
+- 카메라를 움직임 수정해야할 사항
+  1. 검색하면 현재 위치에서 관련있는 마커로 카메라 이동
+  2. viewPager클릭시 상세뷰가 나타남과 동시에 AppbarLayout에 해당 마커위치를 보여줄수 있도록 한다
+  3. 검색바, 줌인아웃 버튼 숨기기
+  4. 상세뷰를 내릴 경우 상세뷰를 내리기 직전의 카메라뷰로 넘길예정
+
+- viewPager외에 floatingButton을 이용하여 List형태로도 추가해야한다
+- viewPager에 vo객체로 담아야한다
