@@ -5,6 +5,7 @@ import android.media.Image
 import com.example.firstkotlinapp.dataClass.BoardVO
 import com.example.firstkotlinapp.dataClass.MarkerDataVO
 import io.reactivex.Single
+import kotlinx.coroutines.Deferred
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.Response
@@ -54,6 +55,12 @@ interface MarkerService {
     fun getData(
         @Field("seq") seq: Int
     ) : Single<MarkerDataVO>
+
+    @FormUrlEncoded
+    @POST("EarthCommunity/getMarkerWithSearch.do")
+     suspend fun getDataWithSearch(
+        @Field("searchString") searchString: String
+    ) : retrofit2.Response<List<MarkerDataVO>>
 
     @FormUrlEncoded
     @POST("EarthCommunity/getImage")

@@ -13,10 +13,12 @@ import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.firstkotlinapp.App
 import com.example.firstkotlinapp.R
 import com.example.firstkotlinapp.recycler.list.LinearLayoutManagerWrapper
 import com.example.firstkotlinapp.recycler.list.SearchHistoryAdapter
 import kotlinx.android.synthetic.main.fragment_search_history.*
+import java.util.prefs.Preferences
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -54,6 +56,9 @@ class SearchHistoryFragment : Fragment() {
         val recyclerView = view.findViewById<RecyclerView>(R.id.search_history_recyclerView)
         val deleteButton : Button = view.findViewById(R.id.search_history_delete_button)
         val selectAllButton : Button = view.findViewById(R.id.search_history_item_allselect_button)
+
+        //val testHistoryList = App.prefs.getHistoryList()
+
         val testHistoryList = arrayListOf<String>(
             "text1",
             "text2",
@@ -75,15 +80,17 @@ class SearchHistoryFragment : Fragment() {
             "text18",
             "text19"
         )
-        historyAdapter = SearchHistoryAdapter(testHistoryList)
+
         //val linearLayoutManager = LinearLayoutManager(container?.context, LinearLayoutManager.VERTICAL, false)
         val linearLayoutManager = LinearLayoutManagerWrapper(context!!, LinearLayoutManager.VERTICAL, false)
 
         val dividerItemDecoration = DividerItemDecoration(context, linearLayoutManager.orientation)
         val dividerDrawable = context?.resources?.getDrawable(R.drawable.search_history_recyclerview_divider, null)
         dividerItemDecoration.setDrawable(dividerDrawable!!) // !! 안쓰고 해결할 방법좀 찾아보자
-
-        recyclerView.adapter = historyAdapter
+        if(testHistoryList != null){
+            historyAdapter = SearchHistoryAdapter(testHistoryList)
+            recyclerView.adapter = historyAdapter
+        }
         recyclerView.layoutManager = linearLayoutManager
         recyclerView.setHasFixedSize(true)
         //recyclerView.addItemDecoration(dividerItemDecoration)

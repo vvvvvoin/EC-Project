@@ -592,3 +592,23 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 
 - viewPager외에 floatingButton을 이용하여 List형태로도 추가해야한다
 - viewPager에 vo객체로 담아야한다
+
+### 2020.08.30
+
+- 작업 없음
+
+### 2020.08.31
+
+- 리싸이크럴뷰를 이용한 bottomSheet를 제외하고 검색부터 상세보기까지 완료하였다
+- 검색바가 상세뷰와 지도를 볼때를 구분하여 표시하도록 만듬
+- 검색바의 취소버튼을 통해 기본 뷰로 돌아갈 수 있게함
+- 디테일 bottomSheet에 따라 주변 컴포넌트 변화
+
+
+
+![32](image/32.GIF)
+
+- 아직 검색시 검색된 데이터의 위치를 기반으로 카메라를 이동시키지 못함
+- 검색된 데이터만 마커표시 해주는 기능 없음
+- 디버깅, 디자인 수정해야함
+

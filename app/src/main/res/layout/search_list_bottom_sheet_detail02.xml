@@ -1,0 +1,11 @@
+<androidx.core.widget.NestedScrollView android:id="@+id/search_list_bottomSheet_detail_scroll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <include
+        layout="@layout/search_list_bottom_sheet_detail03" />
+</androidx.core.widget.NestedScrollView>

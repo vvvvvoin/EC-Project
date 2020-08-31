@@ -1,24 +1,16 @@
 package com.example.firstkotlinapp.recycler.list
 
 import android.content.Context
-import android.util.Log
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.util.putAll
 import androidx.recyclerview.widget.RecyclerView
 import com.example.firstkotlinapp.R
-import com.google.android.flexbox.FlexDirection
-import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayout
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 
 class SearchCategoryAdapter(val categoryList : ArrayList<SearchCategoryData>, val context : Context?) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
@@ -30,8 +22,8 @@ class SearchCategoryAdapter(val categoryList : ArrayList<SearchCategoryData>, va
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.search_history_item, parent, false)
-        if(viewType == SearchCategoryViewType().CATEGORY_TYPE){
+        //val view = LayoutInflater.from(parent.context).inflate(R.layout.search_history_item, parent, false)
+        if(viewType == SearchRecyclerViewAdapterViewType().CATEGORY_TYPE){
             return SearchCategoryType(LayoutInflater.from(parent.context).inflate(R.layout.search_category_item, parent, false))
         }else { //if(viewType == SearchCategoryViewType().CATEGORY_ELEMENT)
             return SearchCategoryElement(LayoutInflater.from(parent.context).inflate(R.layout.search_category_item2, parent, false))

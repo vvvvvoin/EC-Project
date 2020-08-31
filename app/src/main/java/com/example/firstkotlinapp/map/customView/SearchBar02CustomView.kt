@@ -32,4 +32,8 @@ class SearchBar02CustomView(context: Context, attrs: AttributeSet) : LinearLayou
     fun getBackArrowButton() : ImageView{
         return this.search_back_arrow_button
     }
+
+    fun getLayout() : LinearLayout{
+        return this.search_layout
+    }
 }

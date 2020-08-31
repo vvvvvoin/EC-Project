@@ -8,6 +8,9 @@ import android.widget.ImageView
 import com.example.firstkotlinapp.dataBase.MarkerDAO
 import com.example.firstkotlinapp.dataClass.MarkerDataVO
 import com.example.firstkotlinapp.retrofit.OkHttpManager.KotlinOKHttpRetrofitRxJavaManager.TAG
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.clustering.ClusterManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -20,7 +23,6 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.create
-import java.io.InputStreamReader
 import java.util.concurrent.TimeUnit
 
 class OkHttpManager {
@@ -29,7 +31,7 @@ class OkHttpManager {
         val CONNECT_TIMEOUT: Long = 15
         val WRITE_TIMEOUT: Long = 15
         val READ_TIMEOUT: Long = 15
-        val API_URL: String = ""
+        val API_URL: String = "http://211.221.95.181:8080/"
         var mOKHttpClient: OkHttpClient
         var mRetrofit: Retrofit
         var mKotlinRetrofitInterface: MarkerService
@@ -117,6 +119,39 @@ class OkHttpManager {
             })
         return  data
     }
+
+    @ExperimentalCoroutinesApi
+    @SuppressLint("CheckResult")
+    suspend fun getDataWithSearch(searchString: String) : List<MarkerDataVO>? {
+        try {
+            val result = OkHttpManager.KotlinOKHttpRetrofitRxJavaManager.getInstance().getDataWithSearch(searchString)
+            if(result.isSuccessful){
+                return result.body()
+            }else{
+                return null
+            }
+        } catch(error : java.net.SocketTimeoutException) {
+            Log.d(TAG, "실패 이유는 ${error}")
+        }
+
+//            .subscribeOn(Schedulers.io())
+//            .observeOn(Schedulers.io())
+//            .subscribe({
+//                Log.d(TAG, "성공")
+//                returnData = it
+////                if(it.size == 1){
+////                    val latLng = LatLng(it[0].lat, it[0].lng)
+////                    CoroutineScope(Dispatchers.Main).launch {
+////                        mMap?.animateCamera(CameraUpdateFactory.newLatLng(latLng))
+////                    }
+////                }
+//            }, {
+//                Log.d(TAG, "실패")
+//            })
+//        return returnData
+        return null
+    }
+
 
     @SuppressLint("CheckResult")
     fun getImage(seq: Int, popupViewImageview: ImageView){
