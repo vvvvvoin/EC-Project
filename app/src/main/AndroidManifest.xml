@@ -24,9 +24,6 @@
         android:supportsRtl="true"
         android:theme="@style/MapAppTheme">
 
-        <meta-data
-
-
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />

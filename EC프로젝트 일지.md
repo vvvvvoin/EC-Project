@@ -612,3 +612,27 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 - 검색된 데이터만 마커표시 해주는 기능 없음
 - 디버깅, 디자인 수정해야함
 
+### 2020.09.01
+
+- bottomSheet에서 COLLAPSED된 CollapsingToolbarLayout가 버튼에 의해 내려진 후 다시 bottomSheet를 나타내면 COLLAPSED된 상태로 나타나는 것을 AppBarLayout에 addOnOffsetChangedListener 를 이용하여 수정함
+
+- 디테일 뷰에서 스크롤 최상단인 경우를 감지해서 아래로 스와이프하면 디테일뷰 숨기는 기능 추가함 
+  - 기존의 있던 기능이었는데 버그가 많았고, 이번에 추가된  addOnOffsetChangedListener와 함께 응용시켜 문제를 해결함
+
+### 2020.09.02
+
+- 총 3가지의 BottomSheet를 사용하여 서로간의 이벤트를 사용할 수 있게 했다
+  - recyclerView, ViewPager2, AppBarLayout + CollapsingToolbarLayout + NestedScrollView
+- 리싸이클러뷰에서 뷰페이저로 뷰페이저에서 리스트로 변환하는 기능 추가
+- 리싸이클러뷰에서 클릭된 아이템은 뷰페이저에 바로 표시, 해당 마커로 이동
+- backPress를 이용하여 물리버튼으로도 닫을 수 있고 스와이프로 내릴경우도 된다
+
+![33](image/33.GIF)
+
+
+
+![34](image/34.GIF)
+
+- 기존에 마커클릭 이벤트는 popUpActivity에서 bottomSheet로 바뀔예정
+- 선택되거나 해당되는 마커는 하이라이트를 줘야함
+

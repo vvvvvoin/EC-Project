@@ -37,6 +37,9 @@ class SearchResultAdapter( val resultList: SearchResultData,  val testActivity: 
             is SearchResultBottomsheet -> {
                 (holder).subjectTextView.text = resultList.data.get(position).subject
                 (holder).contentTextView.text = resultList.data.get(position).content
+                (holder).linearLayout.setOnClickListener {
+                    testActivity.moveViewPagerBottomSheet(position, resultList.data[position])
+                }
             }
             is SearchResultViewPager -> {
                 (holder).subjectTextView.text = resultList.data.get(position).subject
@@ -51,6 +54,7 @@ class SearchResultAdapter( val resultList: SearchResultData,  val testActivity: 
     private inner class SearchResultBottomsheet(itemview : View) : RecyclerView.ViewHolder(itemview){
         val subjectTextView: TextView = itemview.findViewById(R.id.search_result_bottom_sheet_subject_textView)
         val contentTextView: TextView = itemview.findViewById(R.id.search_result_bottom_sheet_content_textView)
+        val linearLayout : LinearLayout = itemview.findViewById(R.id.search_result_bottom_sheet_item_layout)
     }
 
     @SuppressLint("ClickableViewAccessibility")

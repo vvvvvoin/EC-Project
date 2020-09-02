@@ -45,13 +45,17 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import com.google.maps.android.clustering.ClusterManager
 import kotlinx.android.synthetic.main.activity_test.*
 import kotlinx.android.synthetic.main.search_list_bottom_sheet_detail01.*
+import kotlinx.android.synthetic.main.search_list_bottom_sheet_detail02.*
 import kotlinx.android.synthetic.main.search_list_bottom_sheet_detail03.*
+import kotlinx.android.synthetic.main.search_list_bottom_sheet_recyclerview.*
+import kotlinx.android.synthetic.main.search_list_bottom_sheet_viewpager.*
 import kotlinx.coroutines.*
 import okhttp3.MultipartBody
 import java.lang.Math.abs
@@ -95,9 +99,17 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
     //private var asynchronizedUri: Uri? = null
     private lateinit var asynchronizedUri: Uri
 
+    private lateinit var bottomNavigation : BottomNavigationView
+    private lateinit var searchBar : SearchBar01CustomView
+
+    private lateinit var bottomSheetRecyclerView : RecyclerView
+    private lateinit var bottomSheetViewPager2 : ViewPager2
+
     private lateinit var searchFragment : SearchFragment
     private lateinit var model : MyViewModel
-    private  lateinit var sheetBehaviorDetail : BottomSheetBehavior<View>
+    private lateinit var sheetBehaviorDetail : BottomSheetBehavior<View>
+    private lateinit var sheetBehaviorRecyclerView : BottomSheetBehavior<View>
+    private lateinit var sheetBehaviorViewPager2 : BottomSheetBehavior<View>
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -105,12 +117,12 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
         setContentView(R.layout.activity_test)
 
         mLayout = findViewById(R.id.map_layout)
-        val searchBar : SearchBar01CustomView = findViewById(R.id.searchCustom01)
+        searchBar = findViewById(R.id.searchCustom01)
 
-        val bottomNavigation : BottomNavigationView = findViewById(R.id.bottomNavigationView)
+        bottomNavigation = findViewById(R.id.bottomNavigationView)
 
-        val bottomSheetRecyclerView = findViewById<RecyclerView>(R.id.search_result_recyclerView)
-        val bottomSheetViewPager2 = findViewById<ViewPager2>(R.id.search_result_viewPager)
+        bottomSheetRecyclerView = findViewById<RecyclerView>(R.id.search_result_recyclerView)
+        bottomSheetViewPager2 = findViewById<ViewPager2>(R.id.search_result_viewPager)
 
         /*val bottomSheetViewPagerLayout  = findViewById<LinearLayout>(R.id.bottom_sheet_view_pager_linear_layout)
         bottomSheetViewPagerLayout.setOnTouchListener { view, motionEvent ->
@@ -138,43 +150,52 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
         bottomSheetRecyclerView.layoutManager = linearLayoutManager
         bottomSheetRecyclerView.setHasFixedSize(true)
 
-        val sheetBehaviorRecyclerView = BottomSheetBehavior.from(search_list_bottomSheet_recycler)
+        sheetBehaviorRecyclerView = BottomSheetBehavior.from(search_list_bottomSheet_recycler)
         sheetBehaviorRecyclerView.state = BottomSheetBehavior.STATE_HIDDEN
+        sheetBehaviorRecyclerView.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback(){
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {          }
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                when(newState){
+                    BottomSheetBehavior.STATE_COLLAPSED -> {
+                        sheetBehaviorViewPager2.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+                    }
+                }
+            }
+        })
 
-        val sheetBehaviorViewPager2 = BottomSheetBehavior.from(search_list_bottomSheet_viewpager)
+        sheetBehaviorViewPager2 = BottomSheetBehavior.from(search_list_bottomSheet_viewpager)
         sheetBehaviorViewPager2.state = BottomSheetBehavior.STATE_HIDDEN
+        sheetBehaviorViewPager2.addBottomSheetCallback(object: BottomSheetBehavior.BottomSheetCallback(){
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {            }
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                when(newState){
+                    BottomSheetBehavior.STATE_HIDDEN -> {
+                        if(sheetBehaviorRecyclerView.state == BottomSheetBehavior.STATE_COLLAPSED || sheetBehaviorRecyclerView.state == BottomSheetBehavior.STATE_HIDDEN){
+                            initializationView()
+                        }
+                    }
+                }
+            }
+
+        })
 
         sheetBehaviorDetail = BottomSheetBehavior.from(search_list_bottomSheet_detail)
         sheetBehaviorDetail.state = BottomSheetBehavior.STATE_HIDDEN
         sheetBehaviorDetail.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback(){
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                //Log.d(TAG, "오프셋 : ${slideOffset}")
-
-            }
-
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {            }
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 when(newState){
                     BottomSheetBehavior.STATE_HIDDEN -> {
                         Log.d(TAG, "STATE_HIDDEN")
                         latestLatLngFlag = false
-                        mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(latestLatLng, 12f))
+                        mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(latestLatLng, 14f))
                         searchCustom01.visibility = View.VISIBLE
+                        AppBarLayout.setExpanded(true)
                     }
                     BottomSheetBehavior.STATE_COLLAPSED -> {
                         Log.d(TAG, "STATE_COLLAPSED")
                         sheetBehaviorDetail.state = BottomSheetBehavior.STATE_HIDDEN
-                    }
-                    BottomSheetBehavior.STATE_DRAGGING -> {
-                        Log.d(TAG, "STATE_DRAGGING")
-                    }
-                    BottomSheetBehavior.STATE_EXPANDED -> {
-                        Log.d(TAG, "STATE_EXPANDED")
-                    }
-                    BottomSheetBehavior.STATE_HALF_EXPANDED -> {
-                        Log.d(TAG, "STATE_HALF_EXPANDED")
-                    }
-                    BottomSheetBehavior.STATE_SETTLING -> {
-                        Log.d(TAG, "STATE_SETTLING")
+                        AppBarLayout.setExpanded(true)
                     }
                 }
             }
@@ -183,46 +204,58 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        return_to_map.getSearchIcMapLayout().setOnClickListener {
+            sheetBehaviorViewPager2.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+            sheetBehaviorRecyclerView.state = BottomSheetBehavior.STATE_HIDDEN
+        }
+        return_to_list.getSearchIcListLayout().setOnClickListener {
+            sheetBehaviorViewPager2.state = BottomSheetBehavior.STATE_HIDDEN
+            sheetBehaviorRecyclerView.state = BottomSheetBehavior.STATE_EXPANDED
+        }
 
         val bottomSheetDetailScroll: NestedScrollView =  findViewById(R.id.search_list_bottomSheet_detail_scroll)
         bottomSheetDetailScroll.isSmoothScrollingEnabled = true
-        bottomSheetDetailScroll.setOnScrollChangeListener { v: NestedScrollView?, scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int ->
-            var y1 = 0.0f
-            var y2 = 0.0f
-            if(scrollY == 0){
-                Log.d(TAG, "scrollY top임")
-                v?.setOnTouchListener { view, motionEvent ->
-                    when(motionEvent.action){
+//        bottomSheetDetailScroll.setOnTouchListener { view, motionEvent ->
+//            var y1 = 0.0
+//            var y2 = 0.0
+//
+//            return@setOnTouchListener true
+//        }
+
+        var y1: Float = 0.0f
+        var y2: Float = 0.0f
+        var offSet : Int = 0
+        AppBarLayout.addOnOffsetChangedListener(object : AppBarStateChangeListener() {
+            override fun onStateChanged(appBarLayout: AppBarLayout?, state: State?) {
+            }
+            override fun onOffsetChanged(appBarLayout: AppBarLayout, i: Int) {
+                super.onOffsetChanged(appBarLayout, i)
+                offSet = i
+                search_list_bottomSheet_detail_scroll.setOnTouchListener { view, motionEvent ->
+                    when (motionEvent.action) {
                         MotionEvent.ACTION_DOWN -> {
                             y1 = motionEvent.getY()
                             return@setOnTouchListener false
                         }
                         MotionEvent.ACTION_UP -> {
                             y2 = motionEvent.getY()
-                            if(y1 < y2){
-                                Log.d(TAG, "BottomSheet 닫기")
-                                sheetBehaviorDetail.state = BottomSheetBehavior.STATE_HIDDEN
+                            if (y2 > y1) {
+                                if (offSet == 0) {
+                                    sheetBehaviorDetail.state = BottomSheetBehavior.STATE_HIDDEN
+                                }
                             }
                             return@setOnTouchListener false
                         }
                         else -> return@setOnTouchListener false
                     }
                 }
+
             }
-        }
+        })
+
 
         searchBar.getSearchXbtn().setOnClickListener {
-            bottomNavigation.visibility = View.VISIBLE
-            searchCustom01.visibility = View.VISIBLE
-            map_view_size_plus.visibility = View.VISIBLE
-            map_view_size_minus.visibility = View.VISIBLE
-
-            searchBar.getSearchTextView().text = ""
-            searchBar.getSearchXbtn().visibility = View.INVISIBLE
-            sheetBehaviorRecyclerView.state = BottomSheetBehavior.STATE_HIDDEN
-            sheetBehaviorViewPager2.state = BottomSheetBehavior.STATE_HIDDEN
-            sheetBehaviorDetail.state = BottomSheetBehavior.STATE_HIDDEN
-
+            initializationView()
         }
 
         //liveData 값 받기
@@ -247,8 +280,8 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
                             val resultAdapter2 = SearchResultAdapter(bottomSheetData02, this@TestActivity)
 
                             withContext(Dispatchers.Main) {
-//                                bottomSheetRecyclerView.adapter = resultAdapter1
-//                                sheetBehaviorRecyclerView.state = BottomSheetBehavior.STATE_EXPANDED
+                                bottomSheetRecyclerView.adapter = resultAdapter1
+                                //sheetBehaviorRecyclerView.state = BottomSheetBehavior.STATE_EXPANDED
 //
                                 bottomSheetViewPager2.adapter = resultAdapter2
                                 val pageTranslationX = 70
@@ -432,6 +465,7 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
         clusterManager.addItem(MarkerDataVO(999,"이남경", "snippet", 37.429446, 127.255110, "서보인", "주소"))*/
 
     }
+
     fun moveBottomSheet( lat: Double, lng: Double, markerDataVO: MarkerDataVO) {
         latestLatLngFlag = true
         search_list_bottomSheet_detail.visibility = View.VISIBLE
@@ -446,17 +480,48 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
         //bottomSheet가 히든됬을때 저장된 위치로 다시 카메라 업데이트 시키면 자연스러울듯
     }
 
-//    override fun onBackPressed() {
-//        Log.d(TAG, "뒤로가기")
-//        if(supportFragmentManager.backStackEntryCount != 0){
-//            supportFragmentManager.popBackStack()
-//            Log.d(TAG, "supportFragmentManager.popBackStack() 로 실행됨")
-//        }else{
-//            Log.d(TAG, "super.onBackPressed() 로 실행됨")
-//            super.onBackPressed()
-//        }
-//
-//    }
+    fun moveViewPagerBottomSheet(position: Int, markerDataVO: MarkerDataVO){
+        mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(markerDataVO.lat, markerDataVO.lng), 14f))
+        sheetBehaviorRecyclerView.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetViewPager2.setCurrentItem(position, true)
+    }
+
+    fun initializationView(){
+        bottomNavigation.visibility = View.VISIBLE
+        searchCustom01.visibility = View.VISIBLE
+        map_view_size_plus.visibility = View.VISIBLE
+        map_view_size_minus.visibility = View.VISIBLE
+
+        searchBar.getSearchTextView().text = ""
+        searchBar.getSearchXbtn().visibility = View.INVISIBLE
+        sheetBehaviorRecyclerView.state = BottomSheetBehavior.STATE_HIDDEN
+        sheetBehaviorViewPager2.state = BottomSheetBehavior.STATE_HIDDEN
+        sheetBehaviorDetail.state = BottomSheetBehavior.STATE_HIDDEN
+    }
+
+    override fun onBackPressed() {
+        Log.d(TAG, "뒤로가기")
+        if(sheetBehaviorDetail.state == BottomSheetBehavior.STATE_EXPANDED){
+            sheetBehaviorDetail.state = BottomSheetBehavior.STATE_HIDDEN
+            return
+        }
+        if(sheetBehaviorRecyclerView.state == BottomSheetBehavior.STATE_EXPANDED){
+            sheetBehaviorRecyclerView.state = BottomSheetBehavior.STATE_HIDDEN
+            return
+        }
+        if(sheetBehaviorViewPager2.state == BottomSheetBehavior.STATE_EXPANDED || sheetBehaviorViewPager2.state == BottomSheetBehavior.STATE_COLLAPSED){
+            sheetBehaviorViewPager2.state = BottomSheetBehavior.STATE_HIDDEN
+            return
+        }
+        if(supportFragmentManager.backStackEntryCount != 0){
+            supportFragmentManager.popBackStack()
+            Log.d(TAG, "supportFragmentManager.popBackStack() 로 실행됨")
+        }else{
+            Log.d(TAG, "super.onBackPressed() 로 실행됨")
+            super.onBackPressed()
+        }
+
+    }
 
     override fun onMapClick(latlng: LatLng) {
         Log.d(TAG, "구글맵에 클릭한 위치의 위도경도는 ${latlng}입니다")

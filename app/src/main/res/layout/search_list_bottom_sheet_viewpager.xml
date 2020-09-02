@@ -3,10 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/bottom_sheet_view_pager_linear_layout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:layout_marginHorizontal="10dp"
     android:orientation="vertical"
     tools:context=".map.TestActivity">
+
+    <com.example.firstkotlinapp.map.customView.SearchIcListCustomView
+        android:id="@+id/return_to_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="right" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/search_result_viewPager"

@@ -107,7 +107,7 @@
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
             app:behavior_hideable="true"
-            app:behavior_peekHeight="100dp"
+            app:behavior_peekHeight="0dp"
             app:layout_behavior="@string/bottom_sheet_behavior" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
@@ -123,7 +123,7 @@
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
             app:behavior_hideable="true"
-            app:behavior_peekHeight="200dp"
+            app:behavior_peekHeight="50dp"
             app:layout_behavior="@string/bottom_sheet_behavior" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
