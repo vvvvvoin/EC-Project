@@ -666,3 +666,15 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 - 즐겨찾기 마커같은 경우 처음부터 표시하는 방향으로 구상중
 
 - 현재 viewPager2에서 현재 보고 있는 아이템일 경우 화면을 이동시키는 기능을 구현했는데 중복적으로 adapter를 생성해서 리스트 크기가 다를 경우 예외가 발생해서 수정해야한다
+
+### 2020.09.07
+
+- viewPager 스크롤시 해당 아이템으로 이동시키는 기능 구현완료
+  - 중복적으로 생성되는 문제 디버깅
+  - 기존에 adapter 지속적으로 교체하는 방법에서 notifyDataSetChanged()를 이용함
+- 지도가 로테이션될 경우 클릭시 해당마커를 줌 못하는 문제가 있음, 회전각에 맞춰서 조정해줘야 된다
+  - 수학적으로 해석해야 할거 같은데 어렵다
+
+- 중첩되면 구분안되는 마커 구분될 수 있도록 디자인 변경
+
+![36](image/36.GIF)
