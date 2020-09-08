@@ -678,3 +678,16 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 - 중첩되면 구분안되는 마커 구분될 수 있도록 디자인 변경
 
 ![36](image/36.GIF)
+
+### 2020.09.08
+
+- 기존의 LiveData만을 이용하여 검색창의 검색어를 변경했다
+- 이번에는 본격적으로 MVVM패턴을 이용하여 view에서 검색시 ViewModel의 정의된 retofit으로 MutableLiveData를 받아 이 데이터를 다시 view에서 값을 observe하여 view에서 UI작업만 할 수 있도록 MVVM패턴을 적용시켰다
+- 동작은 이전과 완벽히 동일하게 동작하는 것 처럼보이지만 내부적으로 일부 기능을 MVVM패턴으로 바뀌었다.
+  - 현재는 retrofit의 하나의 기능만 만들었다
+  - 나머지도 다시 MVVM패턴으로 만드는데는 다소 시간이 소요될 것 같다
+  - Room도 보통 MVVM패턴으로 활용하지만 이 앱에서는 배보다 배꼽이 더 커지는 경우가 될 것 같다. Room의 활용도가 크지 않기 때문에 그렇다. 그래서 활용방법을 찾아볼 예정
+  - 아직 불안정하고 추가할게 많다
+- 확실히 View의 코드가 줄어든것을 확인할 수 있었다
+
+- 기존의 검색기능 중 일부 불필요한 코드제거함
