@@ -2,7 +2,6 @@ package com.example.firstkotlinapp.map.fragment
 
 import android.content.Context
 import android.os.Bundle
-import android.text.Editable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -14,14 +13,16 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
-import com.example.firstkotlinapp.App
 import com.example.firstkotlinapp.R
-import com.example.firstkotlinapp.map.TestActivity
 import com.example.firstkotlinapp.map.customView.SearchBar02CustomView
 import com.example.firstkotlinapp.recycler.fragment.FragmentAdapter
+import com.example.firstkotlinapp.viewModel.MarkerViewModel
 import com.example.firstkotlinapp.viewModel.MyViewModel
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -105,6 +106,7 @@ class SearchFragment : Fragment(){
         }
         //onwer가 같다면 객체를 새로 생성하지 않고 이전에 생성된 주소값을 바로보는거 같다
         model  = ViewModelProvider(activity!!).get(MyViewModel::class.java)
+        val model2 = ViewModelProvider(activity!!).get(MarkerViewModel::class.java)
 
         searchEditText = searchCustom02.getSearchTextView()
 
@@ -115,6 +117,9 @@ class SearchFragment : Fragment(){
                     //App.prefs.addHistoryList(searchEditText.text.toString())
                     if(searchEditText.text.toString() != "") {
                         model.setSearchBarText(searchEditText.text.toString())
+                        CoroutineScope(Dispatchers.IO).launch {
+                            model2.getSearchMarkerData(searchEditText.text.toString())
+                        }
                         inputMethodManager.hideSoftInputFromWindow(searchEditText.windowToken, InputMethodManager.HIDE_IMPLICIT_ONLY)
                         activity?.onBackPressed()
                     }

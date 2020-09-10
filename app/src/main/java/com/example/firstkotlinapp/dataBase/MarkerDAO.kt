@@ -1,5 +1,6 @@
 package com.example.firstkotlinapp.dataBase
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
 import com.example.firstkotlinapp.dataClass.MarkerDataVO
@@ -9,6 +10,9 @@ import com.example.firstkotlinapp.dataClass.MarkerDataVO
 interface MarkerDAO{
     @Query("SELECT * FROM marker")
      fun getAll() : List<MarkerDataVO>
+
+    @Query("SELECT * FROM marker")
+    fun getAllLive() : LiveData<List<MarkerDataVO>>
 
     @Query("SELECT * FROM marker WHERE seq = :seq")
      fun getOne(seq : Int) : MarkerDataVO

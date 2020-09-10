@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
@@ -19,6 +20,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.net.toUri
 import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.Observer
@@ -36,6 +38,7 @@ import com.example.firstkotlinapp.recycler.list.LinearLayoutManagerWrapper
 import com.example.firstkotlinapp.recycler.list.SearchRecyclerViewAdapterViewType
 import com.example.firstkotlinapp.recycler.list.SearchResultAdapter
 import com.example.firstkotlinapp.recycler.list.SearchResultData
+import com.example.firstkotlinapp.viewModel.MarkerViewModel
 import com.example.firstkotlinapp.retrofit.OkHttpManager
 import com.example.firstkotlinapp.util.makeMultipartBody
 import com.example.firstkotlinapp.viewModel.MyViewModel
@@ -66,14 +69,17 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
     private var mMap: GoogleMap? = null
     private var currentMarker : Marker? = null
     private var latestLatLng : LatLng? = null
-    private var latestLatLngFlag : Boolean = false;
+    private var latestLatLngFlag : Boolean = false
+    private  var latestZoomLevel : Float = 0.0F
 
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest : LocationRequest
 
     private lateinit var mLayout : View
     private lateinit var mCurrentLocatiion : Location
-    lateinit var clusterManager: ClusterManager<MarkerDataVO>
+    private lateinit var clusterManager: ClusterManager<MarkerDataVO>
+    private lateinit var clusterRenderer : ClusterRenderer
+    private lateinit var clusterRendererData : MarkerDataVO
 
     var needRequest:Boolean = false
 
@@ -105,11 +111,19 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
     private lateinit var bottomSheetRecyclerView : RecyclerView
     private lateinit var bottomSheetViewPager2 : ViewPager2
 
-    private lateinit var searchFragment : SearchFragment
     private lateinit var model : MyViewModel
+    private lateinit var model2 : MarkerViewModel
+
+    private lateinit var searchFragment : SearchFragment
     private lateinit var sheetBehaviorDetail : BottomSheetBehavior<View>
     private lateinit var sheetBehaviorRecyclerView : BottomSheetBehavior<View>
     private lateinit var sheetBehaviorViewPager2 : BottomSheetBehavior<View>
+
+    private lateinit var  bottomSheetData01 : SearchResultData
+    private lateinit var bottomSheetData02 : SearchResultData
+    private  var resultAdapter1 : SearchResultAdapter? = null
+    private  var resultAdapter2 : SearchResultAdapter? = null
+
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -188,7 +202,10 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
                     BottomSheetBehavior.STATE_HIDDEN -> {
                         Log.d(TAG, "STATE_HIDDEN")
                         latestLatLngFlag = false
-                        mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(latestLatLng, 14f))
+                        mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(latestLatLng, latestZoomLevel))
+
+                        val bitmap = applicationContext.resources.getDrawable(R.drawable.ic_map_marker04, null)?.toBitmap()
+                        clusterRenderer.getMarker(clusterRendererData)?.setIcon(BitmapDescriptorFactory.fromBitmap(Bitmap.createBitmap(bitmap!!)))
                         searchCustom01.visibility = View.VISIBLE
                         AppBarLayout.setExpanded(true)
                     }
@@ -199,10 +216,10 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
                     }
                 }
             }
-
         })
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
         return_to_map.getSearchIcMapLayout().setOnClickListener {
             sheetBehaviorViewPager2.state = BottomSheetBehavior.STATE_HALF_EXPANDED
@@ -215,12 +232,6 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
 
         val bottomSheetDetailScroll: NestedScrollView =  findViewById(R.id.search_list_bottomSheet_detail_scroll)
         bottomSheetDetailScroll.isSmoothScrollingEnabled = true
-//        bottomSheetDetailScroll.setOnTouchListener { view, motionEvent ->
-//            var y1 = 0.0
-//            var y2 = 0.0
-//
-//            return@setOnTouchListener true
-//        }
 
         var y1: Float = 0.0f
         var y2: Float = 0.0f
@@ -249,77 +260,134 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
                         else -> return@setOnTouchListener false
                     }
                 }
-
             }
         })
-
 
         searchBar.getSearchXbtn().setOnClickListener {
             initializationView()
         }
+        resultAdapter1 = SearchResultAdapter(null, this@TestActivity)
+        resultAdapter2 = SearchResultAdapter(null, this@TestActivity)
+        bottomSheetRecyclerView.adapter = resultAdapter1
+        bottomSheetViewPager2.adapter = resultAdapter2
+
+        // 뷰페이저 page 넘길시 해당 아이템에 대한 위치로 이동시켜주기
+        bottomSheetViewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback(){
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                bottomSheetViewPager2.currentItem
+                mMap?.animateCamera(CameraUpdateFactory.newLatLng(LatLng(resultAdapter1!!.getItemList().get(position).lat, resultAdapter1!!.getItemList().get(position).lng)))
+            }
+        })
+        val pageTranslationX = 70
+        val pageTransformer = ViewPager2.PageTransformer { page: View, position: Float ->
+            page.translationX = -pageTranslationX * position
+            // Next line scales the item's height. You can remove it if you don't want this effect
+            page.scaleY = 1 - (0.25f * abs(position))
+        }
+        bottomSheetViewPager2.setPageTransformer(pageTransformer)
+        bottomSheetViewPager2.offscreenPageLimit = 2
 
         //liveData 값 받기
         model  = ViewModelProvider(this).get(MyViewModel::class.java)
+        //////////////////// 새롭게 추가된 라이브 데이터 검색결과 반영시키기///////////////////////////////////////
+        // 실패하면 getDataWithSearch에 반환에 response제거, 성공시 리턴값에 body추가하기
         model.searchBarText.observe(this, Observer {
             Log.d(TAG, "observe 실행됨")
             searchBar.getSearchTextView().text = it
+        })
+
+        model2 = ViewModelProvider(this).get(MarkerViewModel::class.java)
+        model2.searchData.observe(this, Observer {
+            if (it.isEmpty()){
+                Toast.makeText(this, "인터넷 연결을 확인해주세요", Toast.LENGTH_SHORT).show()
+                return@Observer
+            }
             searchBar.getSearchXbtn().visibility = View.VISIBLE
             bottomNavigation.visibility = View.GONE
             map_view_size_plus.visibility = View.GONE
             map_view_size_minus.visibility = View.GONE
+            clusterManager.clearItems()
 
-            //검색 데이터를 서버로 부터 불러오고 bottomSheet 실행
-            CoroutineScope(Dispatchers.IO).launch {
-                OkHttpManager().getDataWithSearch(it).let {
-                    Log.d(TAG, "레트로핏과 코루틴의 조합된 값 = ${it}")
-                    if (it != null) {
-                        if (it.isNotEmpty() ){
-                            val bottomSheetData01 = SearchResultData(SearchRecyclerViewAdapterViewType().RESULT_BOTTOM_SHEET, it)
-                            val bottomSheetData02 = SearchResultData(SearchRecyclerViewAdapterViewType().RESULT_VIEW_PAGER, it)
-                            val resultAdapter1 = SearchResultAdapter(bottomSheetData01, this@TestActivity)
-                            val resultAdapter2 = SearchResultAdapter(bottomSheetData02, this@TestActivity)
-
-                            withContext(Dispatchers.Main) {
-                                bottomSheetRecyclerView.adapter = resultAdapter1
-                                //sheetBehaviorRecyclerView.state = BottomSheetBehavior.STATE_EXPANDED
-//
-                                bottomSheetViewPager2.adapter = resultAdapter2
-                                val pageTranslationX = 70
-                                val pageTransformer = ViewPager2.PageTransformer { page: View, position: Float ->
-                                    page.translationX = -pageTranslationX * position
-                                    // Next line scales the item's height. You can remove it if you don't want this effect
-                                    page.scaleY = 1 - (0.25f * abs(position))
-                                }
-
-                                bottomSheetViewPager2.setPageTransformer(pageTransformer)
-                                bottomSheetViewPager2.offscreenPageLimit = 1
-                                sheetBehaviorViewPager2.state = BottomSheetBehavior.STATE_HALF_EXPANDED
-
-                                sheetBehaviorDetail.state = BottomSheetBehavior.STATE_HIDDEN
-                                search_list_bottomSheet_detail.visibility = View.GONE
-
-                            }
-                        }else{
-                            withContext(Dispatchers.Main) {
-                                Toast.makeText(applicationContext, "인터넷 연결을 확인해주세요", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-
-                }
+            for (element in it) {
+                clusterManager.addItem(element)
             }
 
+            bottomSheetData01 =
+                SearchResultData(SearchRecyclerViewAdapterViewType().RESULT_BOTTOM_SHEET, it)
+            bottomSheetData02 =
+                SearchResultData(SearchRecyclerViewAdapterViewType().RESULT_VIEW_PAGER, it)
+
+            resultAdapter1!!.changeItemList(bottomSheetData01)
+            resultAdapter2!!.changeItemList(bottomSheetData02)
+
+            resultAdapter1!!.notifyDataSetChanged()
+            resultAdapter2!!.notifyDataSetChanged()
+            clusterManager.cluster()
+
+            sheetBehaviorViewPager2.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+            sheetBehaviorDetail.state = BottomSheetBehavior.STATE_HIDDEN
+            search_list_bottomSheet_detail.visibility = View.GONE
         })
+        //////////////////// 새롭게 추가된 라이브 데이터 검색결과 반영시키기///////////////////////////////////////
+
+//
+//        model.searchBarText.observe(this, Observer {
+//            Log.d(TAG, "observe 실행됨")
+//            searchBar.getSearchTextView().text = it
+//            searchBar.getSearchXbtn().visibility = View.VISIBLE
+//            bottomNavigation.visibility = View.GONE
+//            map_view_size_plus.visibility = View.GONE
+//            map_view_size_minus.visibility = View.GONE
+//
+//            //검색 데이터를 서버로 부터 불러오고 bottomSheet 실행
+//            CoroutineScope(Dispatchers.IO).launch {
+//                OkHttpManager().getDataWithSearch(it).let {
+//                    Log.d(TAG, "레트로핏과 코루틴의 조합된 값 = ${it}")
+//                    if (it != null) {
+//                        if (it.isNotEmpty() ){
+//                            val viewPagerItem = it
+//                            clusterManager.clearItems()
+//
+//                            for(element in it) {
+//                                clusterManager.addItem(element)
+//                            }
+//
+//                            bottomSheetData01 = SearchResultData(SearchRecyclerViewAdapterViewType().RESULT_BOTTOM_SHEET, it)
+//                            bottomSheetData02 = SearchResultData(SearchRecyclerViewAdapterViewType().RESULT_VIEW_PAGER, it)
+//
+//                            resultAdapter1!!.changeItemList(bottomSheetData01)
+//                            resultAdapter2!!.changeItemList(bottomSheetData02)
+//
+//                            withContext(Dispatchers.Main) {
+//                                resultAdapter1!!.notifyDataSetChanged()
+//                                resultAdapter2!!.notifyDataSetChanged()
+//                                clusterManager.cluster()
+//
+//                                sheetBehaviorViewPager2.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+//                                sheetBehaviorDetail.state = BottomSheetBehavior.STATE_HIDDEN
+//                                search_list_bottomSheet_detail.visibility = View.GONE
+//
+//                            }
+//                        }else{
+//                            withContext(Dispatchers.Main) {
+//                                Toast.makeText(applicationContext, "인터넷 연결을 확인해주세요", Toast.LENGTH_SHORT).show()
+//                            }
+//                        }
+//                    }
+//
+//                }
+//            }
+//
+//        })
 
 
         locationRequest = LocationRequest().setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY).setInterval(UPDATE_INTERVAL_MS.toLong()).setFastestInterval(FASTEST_UPDATE_INTERVAL_MS.toLong())
         val builder = LocationSettingsRequest.Builder()
         builder.addLocationRequest(locationRequest)
-
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-
 
         //비동기 데이터 처리하는 과정
         if(getWifiInfo(this)) {
@@ -367,20 +435,8 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
         mapFragment.getMapAsync(this)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            android.R.id.home -> {
-                Log.d(TAG, "뒤로가기 버튼 눌림")
-                sheetBehaviorDetail.state = BottomSheetBehavior.STATE_HIDDEN
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        var cameraUpdate : CameraUpdate
         map_view_size_plus.setOnClickListener {
             mMap?.animateCamera(CameraUpdateFactory.zoomIn())
         }
@@ -396,7 +452,6 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
                 find_my_location_btn.isSelected = true
                 startLocationUpdates()
             }
-
         }
 
         setDefaultLocation()
@@ -424,16 +479,11 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
             }
         }
 
-        clusterManager = ClusterManager<MarkerDataVO>(this, mMap)
-        var clusterRenderer = ClusterRenderer(this, mMap, clusterManager)
+        clusterManager = ClusterManager(this, mMap)
+        clusterRenderer = ClusterRenderer(this, mMap, clusterManager)
 
-        mMap?.setOnCameraIdleListener(clusterManager)
-
+        //기존 구글맵의 카메라 cameraIdleListener를 정의하고 오버라이딩된 메소드에 clusterManager.cluster() 를 넣는다
         mMap?.setOnCameraIdleListener(this)
-        //이게 카메라 움직이고 멈췄을대를 감지하는 기능인데
-        // 한번에 두개를 적용 못시키는거 같다
-        // 클러스트매니저랑 같이 쓸 방법을 찾아야 한다
-
         mMap?.setOnMarkerClickListener (clusterManager)
         clusterManager.setOnClusterItemClickListener(this)
 
@@ -442,56 +492,86 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
         mMap?.setOnMapClickListener (this)
 
         //서버와 연결중에 있으면 데이터를 받아 맵에 뿌린다
-        if (getWifiInfo(this)) {
-            Log.d(TAG, "서버연결확인 후 동기화 처리")
-              OkHttpManager().getDataList(markerDAO, clusterManager)
-        }else{
-            Log.d(TAG, "서버연결안됬지만 mobileDB를 이용해 처리")
-            GlobalScope.launch(Dispatchers.Main) {
-                val list = async(Dispatchers.IO) { markerDAO.getAll() }
-                for (marker: MarkerDataVO in list.await()) {
-                    clusterManager.addItem(marker)
-                }
+//        if (getWifiInfo(this)) {
+//            Log.d(TAG, "서버연결확인 후 동기화 처리")
+//              OkHttpManager().getDataList(markerDAO, clusterManager)
+//        }else{
+//            Log.d(TAG, "서버연결안됬지만 mobileDB를 이용해 처리")
+//            GlobalScope.launch(Dispatchers.Main) {
+//                val list = async(Dispatchers.IO) { markerDAO.getAll() }
+//                for (marker: MarkerDataVO in list.await()) {
+//                    clusterManager.addItem(marker)
+//                }
+//            }
+//            clusterManager.cluster()
+//        }
+        // 초기 앱 실행시 마커보여주기 (이 기능은 추후 삭제될 예정, 검색된 데이터만 보여줄 예정이기 떄문)
+        model2.getFirstLiveDataList()
+        model2.firstData.observe(this, Observer {
+            if(it.isEmpty()){
+                Toast.makeText(this, "인터넷 연결을 확인해주세요.", Toast.LENGTH_SHORT).show()
+                return@Observer
+            }
+            Toast.makeText(this, "MVVM패턴을 이용해 초기 전체 마커 표시", Toast.LENGTH_SHORT).show()
+            for(marker : MarkerDataVO in it){
+                clusterManager.addItem(marker)
             }
             clusterManager.cluster()
-        }
-
-        /*clusterManager.addItem(MarkerDataVO(999,"테스트", "1", 37.328294, 126.843297, "작성자", "주소"))
-        clusterManager.addItem(MarkerDataVO(999,"테스트", "1", 37.328307, 126.843517, "작성자", "주소"))
-        clusterManager.addItem(MarkerDataVO(999,"테스트", "2", 37.328350, 126.843310, "작성자", "주소"))
-        clusterManager.addItem(MarkerDataVO(999,"테스트", "2", 37.328400, 126.843390, "작성자", "주소"))
-        clusterManager.addItem(MarkerDataVO(999,"테스트", "3", 37.328500, 126.843450, "작성자", "주소"))
-        clusterManager.addItem(MarkerDataVO(999,"테스트", "5", 37.328600, 126.843550, "작성자", "주소"))
-        clusterManager.addItem(MarkerDataVO(999,"이남경", "snippet", 37.429446, 127.255110, "서보인", "주소"))*/
-
+        })
     }
 
-    fun moveBottomSheet( lat: Double, lng: Double, markerDataVO: MarkerDataVO) {
+    // boittomSheetDetail 좌측상단 뒤로가기 버튼 클릭 이벤트
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            android.R.id.home -> {
+                Log.d(TAG, "뒤로가기 버튼 눌림")
+                sheetBehaviorDetail.state = BottomSheetBehavior.STATE_HIDDEN
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    // bottomSheetDetail 상세뷰 데이터 보여주고 카메라 에니메이트,
+    // 클러스트 랜더러를 통해 마커 변화, 주변 UI 숨김
+    fun showBottomSheetDetail(lat: Double?, lng: Double?, markerDataVO: MarkerDataVO?) {
+        model2.getMarkerImage(markerDataVO!!.seq)
+        // 다음 observe는 다른 곳으로 옴겨서 observer을 모아두고
+        // 이 클릭 이벤트가 실행되면 bottom_sheet_detail_imageView를 강제로 로딩 아이콘으로 변경한다
+        // 그리고 없다면 사리지게 되고, 있다면 있는 것으로 바뀌게 된다
+        model2.markerImage.observe(this, Observer {
+            bottom_sheet_detail_imageView.setImageBitmap(it)
+        })
         latestLatLngFlag = true
         search_list_bottomSheet_detail.visibility = View.VISIBLE
         sheetBehaviorDetail.state = BottomSheetBehavior.STATE_EXPANDED
-        mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat - 0.0058, lng), 15f))
+
+        clusterRendererData = markerDataVO!!
+        if (lat != null && lng != null) {
+            mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat  -  0.0015, lng  ), 17f))
+            val bitmap = applicationContext.resources.getDrawable(R.drawable.ic_map_marker03, null)?.toBitmap()
+            clusterRenderer.getMarker(markerDataVO)?.setIcon(BitmapDescriptorFactory.fromBitmap(Bitmap.createBitmap(bitmap!!)))
+        }
         bottom_sheet_detail_subject.text = markerDataVO.subject
         bottom_sheet_detail_content.text = markerDataVO.content
         bottom_sheet_detail_writer.text = markerDataVO.writer
         searchCustom01.visibility = View.GONE
-
-        // 이전에 카메라 움직임에 따라 현재위치를 저장하고 있다가
-        //bottomSheet가 히든됬을때 저장된 위치로 다시 카메라 업데이트 시키면 자연스러울듯
     }
 
-    fun moveViewPagerBottomSheet(position: Int, markerDataVO: MarkerDataVO){
+    // bottomSheetRecyclerView에서 아이템 클릭시 해당 마커로 이동과 동시에
+    // ViewPager2 UI가 나타나고 클릭된 아이템의 position으로 viewPager2에 바로 보여줌
+    fun moveCameraAndShowBottomSheetViewPager(position: Int, markerDataVO: MarkerDataVO){
         mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(markerDataVO.lat, markerDataVO.lng), 14f))
         sheetBehaviorRecyclerView.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetViewPager2.setCurrentItem(position, true)
     }
 
+    // 초기화면으로 UI 초기화
     fun initializationView(){
         bottomNavigation.visibility = View.VISIBLE
         searchCustom01.visibility = View.VISIBLE
         map_view_size_plus.visibility = View.VISIBLE
         map_view_size_minus.visibility = View.VISIBLE
-
         searchBar.getSearchTextView().text = ""
         searchBar.getSearchXbtn().visibility = View.INVISIBLE
         sheetBehaviorRecyclerView.state = BottomSheetBehavior.STATE_HIDDEN
@@ -501,14 +581,17 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
 
     override fun onBackPressed() {
         Log.d(TAG, "뒤로가기")
+        // bottomSheetDetail이 확장될때 뒤로가기 버튼으로  닫음
         if(sheetBehaviorDetail.state == BottomSheetBehavior.STATE_EXPANDED){
             sheetBehaviorDetail.state = BottomSheetBehavior.STATE_HIDDEN
             return
         }
+        // bottomSheetRecyclerView이 확장될때 뒤로가기 버튼으로  닫음
         if(sheetBehaviorRecyclerView.state == BottomSheetBehavior.STATE_EXPANDED){
-            sheetBehaviorRecyclerView.state = BottomSheetBehavior.STATE_HIDDEN
+            sheetBehaviorRecyclerView.state = BottomSheetBehavior.STATE_COLLAPSED
             return
         }
+        // bottomSheetViewPager2이 확장될때와 목록보기만 보일 때에 뒤로가기 버튼으로  닫음
         if(sheetBehaviorViewPager2.state == BottomSheetBehavior.STATE_EXPANDED || sheetBehaviorViewPager2.state == BottomSheetBehavior.STATE_COLLAPSED){
             sheetBehaviorViewPager2.state = BottomSheetBehavior.STATE_HIDDEN
             return
@@ -520,7 +603,6 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
             Log.d(TAG, "super.onBackPressed() 로 실행됨")
             super.onBackPressed()
         }
-
     }
 
     override fun onMapClick(latlng: LatLng) {
@@ -529,7 +611,6 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
         alertDialog.setTitle("마커등록")
         val address : String  = GeoCoder().getAddress(this, latlng)
         alertDialog.setMessage("해당위치에 마커를 등록할까요? \n${address}")
-
         alertDialog.setPositiveButton("확인") { dialog, id ->
             Log.d(TAG, "등록")
             val intent = Intent(this, PopUpEditActivity::class.java)
@@ -545,17 +626,23 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
     }
 
     override fun onClusterItemClick(item: MarkerDataVO?): Boolean {
-        val intent = Intent(this, PopUpViewActivity::class.java)
-        intent.putExtra("view_data", item)
-        startActivityForResult(intent, MARKER_POPUP_VEIW)
+//        val intent = Intent(this, PopUpViewActivity::class.java)
+//        intent.putExtra("view_data", item)
+//        startActivityForResult(intent, MARKER_POPUP_VEIW)
+        showBottomSheetDetail(item?.lat, item?.lng, item)
         Toast.makeText(this, "해당 seq = ${item?.seq}", Toast.LENGTH_LONG).show()
         return true
     }
 
     override fun onCameraIdle() {
         Log.d(TAG, "구글맵 onCameraIdle 호출")
-        if(!latestLatLngFlag) latestLatLng = mMap?.cameraPosition?.target
+        Log.d(TAG, mMap?.cameraPosition?.bearing.toString())
+        if(!latestLatLngFlag) {
+            latestLatLng = mMap?.cameraPosition?.target
+            latestZoomLevel = mMap?.cameraPosition?.zoom!!
+        }
 
+        clusterManager.cluster()
     }
 
     private fun startLocationUpdates() {
@@ -595,8 +682,7 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
             it.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
         }
         currentMarker = mMap?.addMarker(markerOptions)
-        val cameraUpdate = CameraUpdateFactory.newLatLngZoom(DEFAULT_LOCATION, 15f)
-        mMap?.moveCamera(cameraUpdate)
+        mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(DEFAULT_LOCATION, 12f))
     }
 
     private fun showDialogForLocationServiceSetting() {

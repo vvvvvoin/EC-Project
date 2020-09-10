@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/btHome"
-        android:title="Home"
-        android:icon="@drawable/ic_gps"
+        android:title="지도"
+        android:icon="@drawable/ic_map"
         app:showAsAction="always|withText"/>
     <item
         android:id="@+id/btMessage"

@@ -14,7 +14,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
-fun ContentResolver.getFileNmae(uri : Uri) : String{
+fun ContentResolver.getFileName(uri : Uri) : String{
     var name = ""
     val cursor = query(uri, null, null, null, null)
     cursor?.use{
@@ -28,7 +28,7 @@ fun ContentResolver.getFileNmae(uri : Uri) : String{
 fun makeMultipartBody(uri: Uri, context: Context): MultipartBody.Part {
     val parcelFileDescriptor = context.contentResolver.openFileDescriptor(uri, "r", null)
     val inputStream = FileInputStream(parcelFileDescriptor?.fileDescriptor)
-    val file = File(context.cacheDir, context.contentResolver.getFileNmae(uri))
+    val file = File(context.cacheDir, context.contentResolver.getFileName(uri))
     val outputStream = FileOutputStream(file)
     inputStream.copyTo(outputStream)
     val requestBody: RequestBody =  file.asRequestBody("multipart/form-data".toMediaTypeOrNull())

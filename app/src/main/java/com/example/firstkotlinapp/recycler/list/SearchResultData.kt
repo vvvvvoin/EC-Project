@@ -5,5 +5,5 @@ import java.io.Serializable
 
 data class SearchResultData (
     val viewType : Int,
-    val data : List<MarkerDataVO>
+    var data : List<MarkerDataVO>
 ): Serializable

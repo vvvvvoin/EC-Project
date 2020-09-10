@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import android.widget.ImageView
+import androidx.lifecycle.LiveData
 import com.example.firstkotlinapp.dataBase.MarkerDAO
 import com.example.firstkotlinapp.dataClass.MarkerDataVO
 import com.example.firstkotlinapp.retrofit.OkHttpManager.KotlinOKHttpRetrofitRxJavaManager.TAG
@@ -18,6 +19,7 @@ import kotlinx.coroutines.*
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -122,36 +124,19 @@ class OkHttpManager {
 
     @ExperimentalCoroutinesApi
     @SuppressLint("CheckResult")
-    suspend fun getDataWithSearch(searchString: String) : List<MarkerDataVO>? {
+    suspend fun getDataWithSearch(searchString: String) : Response<List<MarkerDataVO>>? {
         try {
             val result = OkHttpManager.KotlinOKHttpRetrofitRxJavaManager.getInstance().getDataWithSearch(searchString)
             if(result.isSuccessful){
-                return result.body()
+                return result
             }else{
                 return null
             }
         } catch(error : java.net.SocketTimeoutException) {
             Log.d(TAG, "실패 이유는 ${error}")
         }
-
-//            .subscribeOn(Schedulers.io())
-//            .observeOn(Schedulers.io())
-//            .subscribe({
-//                Log.d(TAG, "성공")
-//                returnData = it
-////                if(it.size == 1){
-////                    val latLng = LatLng(it[0].lat, it[0].lng)
-////                    CoroutineScope(Dispatchers.Main).launch {
-////                        mMap?.animateCamera(CameraUpdateFactory.newLatLng(latLng))
-////                    }
-////                }
-//            }, {
-//                Log.d(TAG, "실패")
-//            })
-//        return returnData
         return null
     }
-
 
     @SuppressLint("CheckResult")
     fun getImage(seq: Int, popupViewImageview: ImageView){
@@ -284,10 +269,5 @@ class OkHttpManager {
                 Log.d(TAG, "데이터 삭제 실패")
             })
     }
-
-
-
-
-
 
 }

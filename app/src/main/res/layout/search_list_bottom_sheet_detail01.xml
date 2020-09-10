@@ -33,6 +33,7 @@
                 android:layout_height="?attr/actionBarSize"
                 app:titleTextColor="@android:color/transparent"
                 app:layout_collapseMode="pin"
+                app:layout_scrollFlags="scroll|enterAlways"
                 app:popupTheme="@style/MapAppTheme">
 
             </androidx.appcompat.widget.Toolbar>

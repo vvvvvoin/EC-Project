@@ -144,4 +144,15 @@
         android:textSize="12sp"
         android:textColor="@android:color/black"/>
 
+    <ImageView
+        android:id="@+id/bottom_sheet_detail_imageView"
+        android:src="@drawable/ic_search_category_favorites"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginStart="5dp"
+        android:adjustViewBounds="true"
+        android:maxWidth="200dp"
+        android:maxHeight="200dp"
+        android:scaleType="centerInside" />
+
 </LinearLayout>

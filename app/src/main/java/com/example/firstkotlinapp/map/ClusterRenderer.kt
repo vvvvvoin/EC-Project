@@ -1,6 +1,8 @@
 package com.example.firstkotlinapp.map
 
 import android.content.Context
+import android.graphics.Bitmap
+import androidx.core.graphics.drawable.toBitmap
 import com.example.firstkotlinapp.R
 import com.example.firstkotlinapp.dataClass.MarkerDataVO
 import com.google.android.gms.maps.GoogleMap
@@ -9,7 +11,8 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
 
-class ClusterRenderer(context: Context?, map: GoogleMap?, clusterManager: ClusterManager<MarkerDataVO>?): DefaultClusterRenderer<MarkerDataVO>(context, map, clusterManager) {
+
+class ClusterRenderer(val context: Context?, map: GoogleMap?, clusterManager: ClusterManager<MarkerDataVO>?): DefaultClusterRenderer<MarkerDataVO>(context, map, clusterManager) {
 
     init {
         clusterManager?.renderer = this
@@ -34,8 +37,12 @@ class ClusterRenderer(context: Context?, map: GoogleMap?, clusterManager: Cluste
                 markerOptions?.visible(true)
             }
             else -> {
-                markerOptions?.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                //markerOptions?.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+
+                val bitmap = context?.resources?.getDrawable(R.drawable.ic_map_marker04, null)?.toBitmap()
+                markerOptions?.icon(BitmapDescriptorFactory.fromBitmap(Bitmap.createBitmap(bitmap!!)))
                 markerOptions?.visible(true)
+
             }
         }
     }
