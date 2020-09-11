@@ -721,3 +721,15 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 - 서버에 해당하는 이미지가 있다면 성공 메시지를 받아 이미지를 이미지뷰에 그린다
 - 서버에 해당하는 마커의 이미지가 없다면 실패 결과로써 로딩아이콘이 사리지도록 만든다
 
+### 2020.09.11
+
+- 로딩 GIF이미지를 보여줌으로서 로딩됨을 보여줌
+
+![38](image/38.GIF)
+
+- 기존 이미지 해상도 때문에 성능저하, out of memory발생가능성에 대한 방지책으로 `Android Develpoer에 큰 비트맵을 효율적으로 로드`를 참고했다
+  - 원본 이미지 4608*3456이미지를 리사이즈하여 부드러운 UI처리를 할 수 있도록 했다
+  - 다른 해상도의 이미지도 imageView에 맞게 자동적으로 해상도가 수정된다
+- Glide를 통해 GIF이미지 로드하는데 첫 동작이후 작동이 안되는 버그가 있다.
+- Glide 라이브러리 자체에 웹URL을 통해 out of memory문제를 해결하며 ImageView에 표시하는 자체기능이 있다
+  - 이방법이 더 간단하여 retrofit을 사용하지 않고 간단하게 되는지 테스트할 예정

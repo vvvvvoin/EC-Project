@@ -23,6 +23,7 @@
   - ContentResolver
   - GoogleMap
   - BottomSheet
+  - Glide
   - ViewPager2
   - BottomNavigation
   - TabLayout
