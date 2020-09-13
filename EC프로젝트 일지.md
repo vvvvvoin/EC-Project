@@ -733,3 +733,18 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 - Glide를 통해 GIF이미지 로드하는데 첫 동작이후 작동이 안되는 버그가 있다.
 - Glide 라이브러리 자체에 웹URL을 통해 out of memory문제를 해결하며 ImageView에 표시하는 자체기능이 있다
   - 이방법이 더 간단하여 retrofit을 사용하지 않고 간단하게 되는지 테스트할 예정
+
+### 2020.09.12
+
+- 기업시험
+
+### 2020.09.13
+
+- Glide자체의 URL로 이미지를 불어올 수 있지만 다른 예외사항에 대해 처리가 불리할 수 있기에 기존의 Retorift방식을 유지한다
+- GIF이미지 로드하는데 첫 동작이후 작동이 안되는 버그는 호출되는 함수내에 liveData Observer가 있어서 두번 이상 등록되어 버그가 발생했다. onCreate or onMapReady에 넣어 해결함
+- 11일에 사용했던 비트맵을 효율적으로 로드 문서에는 BitmapFactory.decodeResource()에 대한 내용이지만 해당 앱은 InputStream이 입력으로 들어오기에 BitmapFactory.decodeStream()을 사용했다.
+  - 해당 안드로이드 개발자 문서 마지막에 decodeResource()로 BitmapFactory.decode*에 적용할 수 있다고 써있는데, decodeStream()를 사용하기 위해서는 BufferedInputStream으로 입력을 넣고 몇몇 코드가 바뀌어야 한다.
+- 기존 Room dao 코드를 Room Repository와 ViewModel에 새롭게 만들었다
+- 아직 MVVM패턴으로 Room관련 작업은 없다
+
+![39](image/39.GIF)
