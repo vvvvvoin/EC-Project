@@ -1,19 +1,11 @@
 package com.example.firstkotlinapp.repository
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.util.Log
-import android.widget.ImageView
 import com.example.firstkotlinapp.dataClass.MarkerDataVO
 import com.example.firstkotlinapp.retrofit.OkHttpManager
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import java.lang.Exception
@@ -23,7 +15,6 @@ class RetrofitRepository() {
     private val retrofit = OkHttpManager.KotlinOKHttpRetrofitRxJavaManager.getInstance()
 
     //////////////////////////////////////////////////////////// Marker CRUD
-    @SuppressLint("CheckResult")
     fun putDataWithImage(
         seq: Int,
         subject: String,
@@ -33,16 +24,10 @@ class RetrofitRepository() {
         writer: String,
         address: String,
         file: MutableList<MultipartBody.Part>?
-    ) {
-        retrofit.putDataWithImage(seq, subject, snippet, lat, lng, writer, address, file)
+    ): Single<List<MarkerDataVO>> {
+        return retrofit.putDataWithImage(seq, subject, snippet, lat, lng, writer, address, file)
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
-            .subscribe({
-                Log.d(TAG, "데이터 삽입 성공")
-            }, {
-                Log.d(TAG, "데이터 삽입 실패")
-                Log.d(TAG, it.toString())
-            })
     }
 
     @SuppressLint("CheckResult")

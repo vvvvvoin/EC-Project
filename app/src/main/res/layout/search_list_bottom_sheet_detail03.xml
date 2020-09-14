@@ -59,7 +59,7 @@
             android:layout_height="match_parent">
 
             <ImageButton
-                android:id="@+id/button1"
+                android:id="@+id/bottom_sheet_detail_save_marker"
                 android:layout_width="70dp"
                 android:layout_height="60dp"
                 android:src="@android:drawable/ic_dialog_map"
@@ -69,7 +69,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="BUTTON 1"
+                android:text="내부저장소에 저장"
                 android:textColor="@android:color/black"
                 android:layout_alignParentBottom="true"/>
         </RelativeLayout>
@@ -146,13 +146,10 @@
 
     <ImageView
         android:id="@+id/bottom_sheet_detail_imageView"
-        android:src="@drawable/ic_search_category_favorites"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
         android:layout_marginStart="5dp"
         android:adjustViewBounds="true"
-        android:maxWidth="200dp"
-        android:maxHeight="200dp"
-        android:scaleType="centerInside" />
+        android:scaleType="fitCenter" />
 
 </LinearLayout>

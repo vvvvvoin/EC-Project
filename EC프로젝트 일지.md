@@ -748,3 +748,17 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 - 아직 MVVM패턴으로 Room관련 작업은 없다
 
 ![39](image/39.GIF)
+
+### 2020.09.14
+
+- Room관련 MVVM작업 진행 중이다
+- Room관련 코드를 view에 반영시킬 수 있도록 수정했다
+- 비동기 데이터에서 삽입, 수정해야할지 구분하여 오류발생 방지(primary key가 있는데 같은 key로 insert하면 앱이 튕김)
+- 등록 후 기존에 사용된 코드로 seq 싱크가 안맞아 사진을 못 보는 버그 수정중
+  - 기존에는 Room의 seq의 최신값으로 웹에 등록하였다.
+  - Room의 사용용도가 달라저 이제는 등록시 DB에 있는 최신 seq값을 기준으로 데이터를 등록해야한다.
+  - 기존의 방법은 한번 실수하면 싱크문제가 발생했는데, 이 방법은 안정적으로 해결할 수 있다.
+  - 또한 비동기 데이터도 관련해서 동기화처리후 DB에 seq로 변환시켜줘야 한다
+- detailBottomSheet에 내부저장소에 마커를 저장할 수 있도록 기능을 추가했다
+  - 이미지 저장 관련해서는 좀더 생각해봐야 해야겠다.
+

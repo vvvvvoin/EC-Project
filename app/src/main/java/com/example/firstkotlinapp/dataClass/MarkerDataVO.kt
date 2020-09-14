@@ -15,10 +15,10 @@ data class MarkerDataVO(
     @PrimaryKey(autoGenerate = true) var seq: Int = 0,
     var subject: String = "",
     var content: String = "",
-    @ColumnInfo(typeAffinity = ColumnInfo.REAL) val lat: Double = 0.0,
-    @ColumnInfo(typeAffinity = ColumnInfo.REAL) val lng: Double = 0.0,
+    @ColumnInfo(typeAffinity = ColumnInfo.REAL) var lat: Double = 0.0,
+    @ColumnInfo(typeAffinity = ColumnInfo.REAL) var lng: Double = 0.0,
     var writer: String = "",
-    val address: String = "",
+    var address: String = "",
     var synchronization: String = "true"
 ) : Serializable, ClusterItem {
     override fun getPosition(): LatLng {

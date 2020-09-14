@@ -9,7 +9,7 @@ import com.example.firstkotlinapp.dataClass.MarkerDataVO
 @Dao
 interface MarkerDAO{
     @Query("SELECT * FROM marker")
-     fun getAll() : List<MarkerDataVO>
+     fun getAll() : LiveData<List<MarkerDataVO>>
 
     @Query("SELECT * FROM marker")
     fun getAllLive() : LiveData<List<MarkerDataVO>>
@@ -17,9 +17,9 @@ interface MarkerDAO{
     @Query("SELECT * FROM marker WHERE seq = :seq")
      fun getOne(seq : Int) : MarkerDataVO
 
-    //앱 실행시 비동기된 데이터 불러오기
+    //앱 실행시 비동기 데이터만 불러옴
     @Query("SELECT * FROM marker WHERE synchronization != 'true'")
-    fun getAsyncList() :  List<MarkerDataVO>
+    fun getAsyncList() :  LiveData<List<MarkerDataVO>>
 
     @Insert
      fun insert(markerEntity: MarkerDataVO)

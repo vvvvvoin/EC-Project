@@ -15,6 +15,7 @@ import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.*
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -28,6 +29,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
 import com.example.firstkotlinapp.R
 import com.example.firstkotlinapp.dataBase.AppDatabase
 import com.example.firstkotlinapp.dataBase.MarkerDAO
@@ -138,28 +140,6 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
         bottomSheetRecyclerView = findViewById<RecyclerView>(R.id.search_result_recyclerView)
         bottomSheetViewPager2 = findViewById<ViewPager2>(R.id.search_result_viewPager)
 
-        /*val bottomSheetViewPagerLayout  = findViewById<LinearLayout>(R.id.bottom_sheet_view_pager_linear_layout)
-        bottomSheetViewPagerLayout.setOnTouchListener { view, motionEvent ->
-            var y1 = 0.0f
-            var y2 = 0.0f
-            when(motionEvent.action){
-                MotionEvent.ACTION_DOWN -> {
-                    y1 = motionEvent.getX()
-                }
-                MotionEvent.ACTION_MOVE -> {
-                    y2 = motionEvent.getX()
-                    if(y1 > y2){
-                        Log.d(TAG, "viewPager 위로 스와이프")
-                        bottomSheetViewPager2.visibility = View.GONE
-                    }else{
-                        Log.d(TAG, "viewPager 아래로 스와이프")
-                        bottomSheetViewPager2.visibility = View.VISIBLE
-                    }
-                }
-            }
-            return@setOnTouchListener true
-        }*/
-
         val linearLayoutManager = LinearLayoutManagerWrapper(applicationContext, LinearLayoutManager.VERTICAL, false)
         bottomSheetRecyclerView.layoutManager = linearLayoutManager
         bottomSheetRecyclerView.setHasFixedSize(true)
@@ -190,7 +170,6 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
                     }
                 }
             }
-
         })
 
         sheetBehaviorDetail = BottomSheetBehavior.from(search_list_bottomSheet_detail)
@@ -232,10 +211,20 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
 
         val bottomSheetDetailScroll: NestedScrollView =  findViewById(R.id.search_list_bottomSheet_detail_scroll)
         bottomSheetDetailScroll.isSmoothScrollingEnabled = true
+        bottom_sheet_detail_save_marker.setOnClickListener {
+            // 선택한 마커가 mDB에 존재하는 여부에 따라 insert, update를 결정
+            if(model2.mDBMarkDataList.value?.contains(clusterRendererData)!!){
+                Toast.makeText(this, "내부 저장소에 데이터를 업데이트 합니다", Toast.LENGTH_SHORT).show()
+                model2.update(clusterRendererData)
+            }else{
+                Toast.makeText(this, "내부 저장소에 데이터를 새로 업로드 합니다", Toast.LENGTH_SHORT).show()
+                model2.insert(clusterRendererData)
+            }
+        }
 
-        var y1: Float = 0.0f
-        var y2: Float = 0.0f
-        var offSet : Int = 0
+        var y1 = 0.0f
+        var y2 = 0.0f
+        var offSet = 0
         AppBarLayout.addOnOffsetChangedListener(object : AppBarStateChangeListener() {
             override fun onStateChanged(appBarLayout: AppBarLayout?, state: State?) {
             }
@@ -266,16 +255,10 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
         searchBar.getSearchXbtn().setOnClickListener {
             initializationView()
         }
-        resultAdapter1 = SearchResultAdapter(null, this@TestActivity)
-        resultAdapter2 = SearchResultAdapter(null, this@TestActivity)
-        bottomSheetRecyclerView.adapter = resultAdapter1
-        bottomSheetViewPager2.adapter = resultAdapter2
-
         // 뷰페이저 page 넘길시 해당 아이템에 대한 위치로 이동시켜주기
         bottomSheetViewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback(){
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                bottomSheetViewPager2.currentItem
                 mMap?.animateCamera(CameraUpdateFactory.newLatLng(LatLng(resultAdapter1!!.getItemList().get(position).lat, resultAdapter1!!.getItemList().get(position).lng)))
             }
         })
@@ -287,6 +270,11 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
         }
         bottomSheetViewPager2.setPageTransformer(pageTransformer)
         bottomSheetViewPager2.offscreenPageLimit = 2
+
+        resultAdapter1 = SearchResultAdapter(null, this@TestActivity)
+        resultAdapter2 = SearchResultAdapter(null, this@TestActivity)
+        bottomSheetRecyclerView.adapter = resultAdapter1
+        bottomSheetViewPager2.adapter = resultAdapter2
 
         //liveData 값 받기
         model  = ViewModelProvider(this).get(MyViewModel::class.java)
@@ -329,58 +317,12 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
             sheetBehaviorDetail.state = BottomSheetBehavior.STATE_HIDDEN
             search_list_bottomSheet_detail.visibility = View.GONE
         })
-        //////////////////// 새롭게 추가된 라이브 데이터 검색결과 반영시키기///////////////////////////////////////
 
-//
-//        model.searchBarText.observe(this, Observer {
-//            Log.d(TAG, "observe 실행됨")
-//            searchBar.getSearchTextView().text = it
-//            searchBar.getSearchXbtn().visibility = View.VISIBLE
-//            bottomNavigation.visibility = View.GONE
-//            map_view_size_plus.visibility = View.GONE
-//            map_view_size_minus.visibility = View.GONE
-//
-//            //검색 데이터를 서버로 부터 불러오고 bottomSheet 실행
-//            CoroutineScope(Dispatchers.IO).launch {
-//                OkHttpManager().getDataWithSearch(it).let {
-//                    Log.d(TAG, "레트로핏과 코루틴의 조합된 값 = ${it}")
-//                    if (it != null) {
-//                        if (it.isNotEmpty() ){
-//                            val viewPagerItem = it
-//                            clusterManager.clearItems()
-//
-//                            for(element in it) {
-//                                clusterManager.addItem(element)
-//                            }
-//
-//                            bottomSheetData01 = SearchResultData(SearchRecyclerViewAdapterViewType().RESULT_BOTTOM_SHEET, it)
-//                            bottomSheetData02 = SearchResultData(SearchRecyclerViewAdapterViewType().RESULT_VIEW_PAGER, it)
-//
-//                            resultAdapter1!!.changeItemList(bottomSheetData01)
-//                            resultAdapter2!!.changeItemList(bottomSheetData02)
-//
-//                            withContext(Dispatchers.Main) {
-//                                resultAdapter1!!.notifyDataSetChanged()
-//                                resultAdapter2!!.notifyDataSetChanged()
-//                                clusterManager.cluster()
-//
-//                                sheetBehaviorViewPager2.state = BottomSheetBehavior.STATE_HALF_EXPANDED
-//                                sheetBehaviorDetail.state = BottomSheetBehavior.STATE_HIDDEN
-//                                search_list_bottomSheet_detail.visibility = View.GONE
-//
-//                            }
-//                        }else{
-//                            withContext(Dispatchers.Main) {
-//                                Toast.makeText(applicationContext, "인터넷 연결을 확인해주세요", Toast.LENGTH_SHORT).show()
-//                            }
-//                        }
-//                    }
-//
-//                }
-//            }
-//
-//        })
-
+        // DetailView를 클릭했을 경우 변경된 liveData로 변경
+        model2.markerImage.observe(this, Observer {
+            Glide.with(this).load(it).into(bottom_sheet_detail_imageView)
+            //bottom_sheet_detail_imageView.setImageBitmap(it)
+        })
 
         locationRequest = LocationRequest().setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY).setInterval(UPDATE_INTERVAL_MS.toLong()).setFastestInterval(FASTEST_UPDATE_INTERVAL_MS.toLong())
         val builder = LocationSettingsRequest.Builder()
@@ -390,36 +332,57 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
 
         //비동기 데이터 처리하는 과정
-        if(getWifiInfo(this)) {
-            GlobalScope.launch(Dispatchers.IO) {
-                var aysncDataList = markerDAO.getAsyncList()
-                Log.d(TAG, "비동기 데이터 = ${aysncDataList}")
-                for(it in aysncDataList) {
-                    if(it.synchronization != "false"){
-                        var imageList = mutableListOf<MultipartBody.Part>()
-                        asynchronizedUri = it.synchronization.toUri()
-                        withContext(Dispatchers.IO ) {
-                            makeMultipartBody(asynchronizedUri, applicationContext)
-                        }.let {
-                            imageList.add(it)
-                        }
-                        OkHttpManager().putDataWithImage(it.seq, it.subject, it.content, it.lat, it.lng, it.writer, it.address, imageList)
-                        it.synchronization = "true"
-                        markerDAO.updateSync(it)
-                    }else if(it.synchronization == "false"){
-                        OkHttpManager().putDataWithImage(it.seq, it.subject, it.content, it.lat, it.lng, it.writer, it.address, null)
-                        it.synchronization = "true"
-                        markerDAO.updateSync(it)
-                    }
-
-                }
-                withContext(Dispatchers.Main){
-                    //여기서 다시 전체 데이터를 받아 클러스팅
-                    clusterManager.cluster()
-                }
-
+//        if(getWifiInfo(this)) {
+//            GlobalScope.launch(Dispatchers.IO) {
+//                var aysncDataList = markerDAO.getAsyncList()
+//                Log.d(TAG, "비동기 데이터 = ${aysncDataList}")
+//                for(it in aysncDataList) {
+//                    if(it.synchronization != "false"){
+//                        var imageList = mutableListOf<MultipartBody.Part>()
+//                        asynchronizedUri = it.synchronization.toUri()
+//                        withContext(Dispatchers.IO ) {
+//                            makeMultipartBody(asynchronizedUri, applicationContext)
+//                        }.let {
+//                            imageList.add(it)
+//                        }
+//                        OkHttpManager().putDataWithImage(it.seq, it.subject, it.content, it.lat, it.lng, it.writer, it.address, imageList)
+//                        it.synchronization = "true"
+//                        markerDAO.updateSync(it)
+//                    }else if(it.synchronization == "false"){
+//                        OkHttpManager().putDataWithImage(it.seq, it.subject, it.content, it.lat, it.lng, it.writer, it.address, null)
+//                        it.synchronization = "true"
+//                        markerDAO.updateSync(it)
+//                    }
+//
+//                }
+//                withContext(Dispatchers.Main){
+//                    //여기서 다시 전체 데이터를 받아 클러스팅
+//                    clusterManager.cluster()
+//                }
+//
+//            }
+//        }
+        //////////////////////////////////////////////
+        // mDB에 비동기 데이터 있다면 이 기능이 실행됨
+        model2.mDBAsyncMarkDataList.observe(this, Observer {
+            Log.d(TAG, "mDBAsyncMarkDataList = $it")
+            for(asyn in it){
+                model2.putDataWithImage(asyn.seq, asyn.subject, asyn.snippet, asyn.lat, asyn.lng, asyn.writer, asyn.address, asyn.synchronization.toUri())
             }
-        }
+        })
+
+        // mDB에 전체 데이터가 변화하면 이 기능이 실행됨
+        model2.mDBMarkDataList.observe(this, Observer {
+            Log.d(TAG, "mDBMarkDataList = $it")
+            for(data in it){
+                clusterManager.removeItem(data)
+                clusterManager.addItem(data)
+            }
+            clusterManager.cluster()
+        })
+
+
+        //////////////////////////////////////////////
         searchFragment = SearchFragment.newInstance()
         searchCustom01.getSearchTextView().setOnClickListener {
             supportFragmentManager.beginTransaction().apply {
@@ -513,6 +476,7 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
                 return@Observer
             }
             Toast.makeText(this, "MVVM패턴을 이용해 초기 전체 마커 표시", Toast.LENGTH_SHORT).show()
+            clusterManager.clearItems()
             for(marker : MarkerDataVO in it){
                 clusterManager.addItem(marker)
             }
@@ -535,22 +499,17 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
     // bottomSheetDetail 상세뷰 데이터 보여주고 카메라 에니메이트,
     // 클러스트 랜더러를 통해 마커 변화, 주변 UI 숨김
     fun showBottomSheetDetail(lat: Double?, lng: Double?, markerDataVO: MarkerDataVO?) {
+        bottom_sheet_detail_imageView.setImageResource(0)
+        Glide.with(this).load(R.drawable.ic_loading).into(bottom_sheet_detail_imageView)
         model2.getMarkerImage(markerDataVO!!.seq)
-        // 다음 observe는 다른 곳으로 옴겨서 observer을 모아두고
-        // 이 클릭 이벤트가 실행되면 bottom_sheet_detail_imageView를 강제로 로딩 아이콘으로 변경한다
-        // 그리고 없다면 사리지게 되고, 있다면 있는 것으로 바뀌게 된다
-        model2.markerImage.observe(this, Observer {
-            bottom_sheet_detail_imageView.setImageBitmap(it)
-        })
         latestLatLngFlag = true
         search_list_bottomSheet_detail.visibility = View.VISIBLE
         sheetBehaviorDetail.state = BottomSheetBehavior.STATE_EXPANDED
+        clusterRendererData = markerDataVO
 
-        clusterRendererData = markerDataVO!!
         if (lat != null && lng != null) {
             mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat  -  0.0015, lng  ), 17f))
-            val bitmap = applicationContext.resources.getDrawable(R.drawable.ic_map_marker03, null)?.toBitmap()
-            clusterRenderer.getMarker(markerDataVO)?.setIcon(BitmapDescriptorFactory.fromBitmap(Bitmap.createBitmap(bitmap!!)))
+            clusterRenderer.getMarker(markerDataVO)?.setIcon(BitmapDescriptorFactory.fromBitmap( applicationContext.resources.getDrawable(R.drawable.ic_map_marker03, null)?.toBitmap()))
         }
         bottom_sheet_detail_subject.text = markerDataVO.subject
         bottom_sheet_detail_content.text = markerDataVO.content
@@ -626,9 +585,6 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
     }
 
     override fun onClusterItemClick(item: MarkerDataVO?): Boolean {
-//        val intent = Intent(this, PopUpViewActivity::class.java)
-//        intent.putExtra("view_data", item)
-//        startActivityForResult(intent, MARKER_POPUP_VEIW)
         showBottomSheetDetail(item?.lat, item?.lng, item)
         Toast.makeText(this, "해당 seq = ${item?.seq}", Toast.LENGTH_LONG).show()
         return true
@@ -641,7 +597,6 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
             latestLatLng = mMap?.cameraPosition?.target
             latestZoomLevel = mMap?.cameraPosition?.zoom!!
         }
-
         clusterManager.cluster()
     }
 
