@@ -15,7 +15,6 @@ import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.*
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -42,7 +41,6 @@ import com.example.firstkotlinapp.recycler.list.SearchResultAdapter
 import com.example.firstkotlinapp.recycler.list.SearchResultData
 import com.example.firstkotlinapp.viewModel.MarkerViewModel
 import com.example.firstkotlinapp.retrofit.OkHttpManager
-import com.example.firstkotlinapp.util.makeMultipartBody
 import com.example.firstkotlinapp.viewModel.MyViewModel
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.*
@@ -62,7 +60,6 @@ import kotlinx.android.synthetic.main.search_list_bottom_sheet_detail03.*
 import kotlinx.android.synthetic.main.search_list_bottom_sheet_recyclerview.*
 import kotlinx.android.synthetic.main.search_list_bottom_sheet_viewpager.*
 import kotlinx.coroutines.*
-import okhttp3.MultipartBody
 import java.lang.Math.abs
 
 class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.OnClusterItemClickListener<MarkerDataVO>, GoogleMap.OnMapClickListener, GoogleMap.OnCameraIdleListener{
@@ -215,10 +212,10 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
             // 선택한 마커가 mDB에 존재하는 여부에 따라 insert, update를 결정
             if(model2.mDBMarkDataList.value?.contains(clusterRendererData)!!){
                 Toast.makeText(this, "내부 저장소에 데이터를 업데이트 합니다", Toast.LENGTH_SHORT).show()
-                model2.update(clusterRendererData)
+                model2.mDBUpdate(clusterRendererData)
             }else{
                 Toast.makeText(this, "내부 저장소에 데이터를 새로 업로드 합니다", Toast.LENGTH_SHORT).show()
-                model2.insert(clusterRendererData)
+                model2.mDBInsert(clusterRendererData)
             }
         }
 
@@ -321,7 +318,6 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
         // DetailView를 클릭했을 경우 변경된 liveData로 변경
         model2.markerImage.observe(this, Observer {
             Glide.with(this).load(it).into(bottom_sheet_detail_imageView)
-            //bottom_sheet_detail_imageView.setImageBitmap(it)
         })
 
         locationRequest = LocationRequest().setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY).setInterval(UPDATE_INTERVAL_MS.toLong()).setFastestInterval(FASTEST_UPDATE_INTERVAL_MS.toLong())
@@ -366,8 +362,8 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
         // mDB에 비동기 데이터 있다면 이 기능이 실행됨
         model2.mDBAsyncMarkDataList.observe(this, Observer {
             Log.d(TAG, "mDBAsyncMarkDataList = $it")
-            for(asyn in it){
-                model2.putDataWithImage(asyn.seq, asyn.subject, asyn.snippet, asyn.lat, asyn.lng, asyn.writer, asyn.address, asyn.synchronization.toUri())
+            for(async in it){
+                model2.putDataWithImage(async.seq, async.subject, async.snippet, async.lat, async.lng, async.writer, async.address, async.synchronization.toUri())
             }
         })
 
@@ -381,8 +377,6 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
             clusterManager.cluster()
         })
 
-
-        //////////////////////////////////////////////
         searchFragment = SearchFragment.newInstance()
         searchCustom01.getSearchTextView().setOnClickListener {
             supportFragmentManager.beginTransaction().apply {
@@ -572,7 +566,7 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
         alertDialog.setMessage("해당위치에 마커를 등록할까요? \n${address}")
         alertDialog.setPositiveButton("확인") { dialog, id ->
             Log.d(TAG, "등록")
-            val intent = Intent(this, PopUpEditActivity::class.java)
+            val intent = Intent(this, PopUpEditActivity2::class.java)
             intent.putExtra("lat", latlng.latitude)
             intent.putExtra("lng", latlng.longitude)
             startActivityForResult(intent, MARKER_POPUP_REGISTER)
@@ -699,7 +693,11 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
                 startLocationUpdates()
             } else {
                 // 거부한 퍼미션이 있다면 앱을 사용할 수 없는 이유를 설명해주고 앱을 종료합니다.2 가지 경우가 있습니다.
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,REQUIRED_PERMISSIONS[0])|| ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[1])) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[0]) ||
+                    ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[1]) ||
+                    ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[2]) ||
+                    ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[3]) ||
+                    ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[4]) ){
                     // 사용자가 거부만 선택한 경우에는 앱을 다시 실행하여 허용을 선택하면 앱을 사용할 수 있습니다.
                     Snackbar.make(
                         mLayout, "퍼미션이 거부되었습니다. 앱을 다시 실행하여 퍼미션을 허용해주세요. ",
@@ -738,32 +736,35 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
                         var seq: Int = 0
 
                         Toast.makeText(this, "${markerData.address} 에 마커를 등록했습니다.", Toast.LENGTH_SHORT).show()
-                        GlobalScope.launch(Dispatchers.IO) {
-                            if(getWifiInfo(this@TestActivity)){
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    async {
-                                        markerDAO.insert(markerData)
-                                        seq = markerDAO.getSeq()
-                                    }.await().let {
-                                        Log.d(TAG, "가장 최근에 존재하는 seq는 ${it}")
-                                        OkHttpManager().putDataWithImage(seq+1, markerData.title, markerData.snippet, markerData.lat, markerData.lng, markerData.writer, markerData.address, null)
-                                    }
-                                }
-                                //var getData = OkHttpManager().putDataWithImage(markerData.title, markerData.snippet, markerData.lat, markerData.lng, markerData.writer, markerData.address, null)
-                                //getData를 받기전 다음 코드가 실행되며 무조건 else로 빠지는데 sync를 맞추면 해결할 수 있는데 방법을 아직 모른다
-                                /*if(getData != null)Log.d(TAG, "마커 DB에 저장 후 서버로에 저장하고 받은 ${getData}")
-                                else Log.d(TAG, "서버 연결실패 getData =  ${getData}")*/
-                            }else{
-                                markerData.synchronization = "false"
-                                markerData.seq = markerDAO.getSeq() + 1
-                                markerDAO.insert(markerData)
-                                Log.d(TAG, "마커 DB에만 저장 = ${markerData}")
-                            }
-                            clusterManager.addItem(markerData)
-                            withContext(Dispatchers.Main){
-                                clusterManager.cluster()
-                            }
-                        }
+
+
+                        model2.putDataWithImage(markerData.seq, markerData.title, markerData.snippet, markerData.lat, markerData.lng, markerData.writer, markerData.address, null)
+//                        GlobalScope.launch(Dispatchers.IO) {
+//                            if(getWifiInfo(this@TestActivity)){
+//                                CoroutineScope(Dispatchers.IO).launch {
+//                                    async {
+//                                        markerDAO.insert(markerData)
+//                                        seq = markerDAO.getSeq()
+//                                    }.await().let {
+//                                        Log.d(TAG, "가장 최근에 존재하는 seq는 ${it}")
+//                                        OkHttpManager().putDataWithImage(seq+1, markerData.title, markerData.snippet, markerData.lat, markerData.lng, markerData.writer, markerData.address, null)
+//                                    }
+//                                }
+//                                //var getData = OkHttpManager().putDataWithImage(markerData.title, markerData.snippet, markerData.lat, markerData.lng, markerData.writer, markerData.address, null)
+//                                //getData를 받기전 다음 코드가 실행되며 무조건 else로 빠지는데 sync를 맞추면 해결할 수 있는데 방법을 아직 모른다
+//                                /*if(getData != null)Log.d(TAG, "마커 DB에 저장 후 서버로에 저장하고 받은 ${getData}")
+//                                else Log.d(TAG, "서버 연결실패 getData =  ${getData}")*/
+//                            }else{
+//                                markerData.synchronization = "false"
+//                                markerData.seq = markerDAO.getSeq() + 1
+//                                markerDAO.insert(markerData)
+//                                Log.d(TAG, "마커 DB에만 저장 = ${markerData}")
+//                            }
+//                            clusterManager.addItem(markerData)
+//                            withContext(Dispatchers.Main){
+//                                clusterManager.cluster()
+//                            }
+//                        }
                     }
                     5002 -> let {
                         Log.d(TAG, "마커 등록 취소")
@@ -778,43 +779,44 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
                                 Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                         contentResolver.takePersistableUriPermission(selectImage, takeFlags)
 
-                        var imageList = mutableListOf<MultipartBody.Part>()
-                        if(getWifiInfo(this)){
-                            imageList.add(makeMultipartBody(selectImage, this))
+                        model2.putDataWithImage(markerData.seq, markerData.title, markerData.snippet, markerData.lat, markerData.lng, markerData.writer, markerData.address, selectImage)
 
-                            CoroutineScope(Dispatchers.IO).launch {
-                                async(Dispatchers.IO) {
-                                    markerDAO.insert(markerData)
-                                    markerDAO.getSeq()
-                                }.await().let {
-                                    async {
-                                        Log.d(TAG, "가장 최근에 존재하는 seq는 ${it}")
-                                        markerData.seq = it
-                                        OkHttpManager().putDataWithImage(it, markerData.title, markerData.snippet, markerData.lat, markerData.lng, markerData.writer, markerData.address, imageList)
-                                        clusterManager.addItem(markerData)
-                                    }.await().let {
-                                        withContext(Dispatchers.Main) {
-                                            clusterManager.cluster()
-                                        }
-                                    }
-                                }
-                            }
-                        }else{
-                            val uriString = selectImage.toString()
-                            markerData.synchronization = uriString
-                            CoroutineScope(Dispatchers.IO).launch {
-                                async {
-                                    markerDAO.insert(markerData)
-                                    markerDAO.getSeq()
-                                }.await().let {
-                                    markerData.seq = it
-                                    clusterManager.addItem(markerData)
-                                    withContext(Dispatchers.Main){
-                                        clusterManager.cluster()
-                                    }
-                                }
-                            }
-                        }
+//                        if(getWifiInfo(this)){
+//                            imageList.add(makeMultipartBody(selectImage, this))
+//
+//                            CoroutineScope(Dispatchers.IO).launch {
+//                                async(Dispatchers.IO) {
+//                                    markerDAO.insert(markerData)
+//                                    markerDAO.getSeq()
+//                                }.await().let {
+//                                    async {
+//                                        Log.d(TAG, "가장 최근에 존재하는 seq는 ${it}")
+//                                        markerData.seq = it
+//                                        OkHttpManager().putDataWithImage(it, markerData.title, markerData.snippet, markerData.lat, markerData.lng, markerData.writer, markerData.address, imageList)
+//                                        clusterManager.addItem(markerData)
+//                                    }.await().let {
+//                                        withContext(Dispatchers.Main) {
+//                                            clusterManager.cluster()
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }else{
+//                            val uriString = selectImage.toString()
+//                            markerData.synchronization = uriString
+//                            CoroutineScope(Dispatchers.IO).launch {
+//                                async {
+//                                    markerDAO.insert(markerData)
+//                                    markerDAO.getSeq()
+//                                }.await().let {
+//                                    markerData.seq = it
+//                                    clusterManager.addItem(markerData)
+//                                    withContext(Dispatchers.Main){
+//                                        clusterManager.cluster()
+//                                    }
+//                                }
+//                            }
+//                        }
                         /*val parcelFileDescriptor = contentResolver.openFileDescriptor(selectImage, "r", null) ?: return
                         val inputStream = FileInputStream(parcelFileDescriptor.fileDescriptor)
                         val file = File(cacheDir, contentResolver.getFileNmae(selectImage))
@@ -872,10 +874,8 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
                         Log.d(TAG, "팝업 뷰 후 삭제처리되고 정상종료됨")
                         if (data != null) {
                             markerData = data.getSerializableExtra("delete_data") as MarkerDataVO
-                            OkHttpManager().deleteData(markerData.seq)
-                            CoroutineScope(Dispatchers.IO).launch {
-                                markerDAO.delete(markerData)
-                            }
+                            model2.deleteMarker(markerData.seq)
+                            model2.mDBDelete(markerData)
                             clusterManager.removeItem(markerData)
                             clusterManager.cluster()
                         }

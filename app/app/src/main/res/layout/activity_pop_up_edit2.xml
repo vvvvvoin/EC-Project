@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/marker_edit_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:fitsSystemWindows="true">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="마커등록"
+            android:layout_gravity="center"
+            android:textSize="18dp"
+            android:textStyle="bold"/>
+    </androidx.appcompat.widget.Toolbar>
+
+    <!-- 그리드 레이아웃으로 변경해야함 카테고리 추가해야함-->
+    <com.example.firstkotlinapp.map.customView.MarkerEditCategoryButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"/>
+
+    <EditText
+        android:id="@+id/popup_edit_title_EditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="10dp"
+        android:hint="제목"
+        android:textCursorDrawable="@color/ComponetPrimaryColor"
+        android:background="@null"
+        android:singleLine="true"
+        android:textSize="19sp"/>
+
+    <EditText
+        android:id="@+id/popup_edit_content_EditText"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginHorizontal="10dp"
+        android:gravity="start"
+        android:hint="내용"
+        android:textCursorDrawable="@color/ComponetPrimaryColor"
+        android:background="@null"
+        android:singleLine="true"
+        android:textSize="19sp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginHorizontal="10dp"
+        android:background="@drawable/border"/>
+
+    <Button
+        android:id="@+id/popup_edit_image_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginHorizontal="10dp"
+        android:text="사진"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/popup_edit_image_recyclerview"
+        android:layout_marginTop="10dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+
+</LinearLayout>

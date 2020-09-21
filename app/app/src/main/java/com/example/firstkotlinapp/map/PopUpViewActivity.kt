@@ -1,7 +1,6 @@
 package com.example.firstkotlinapp.map
 
 import android.content.Intent
-import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -15,15 +14,12 @@ import com.example.firstkotlinapp.R
 import com.example.firstkotlinapp.dataClass.MarkerDataVO
 import com.example.firstkotlinapp.retrofit.OkHttpManager
 import kotlinx.android.synthetic.main.marker_popup_view.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+
 
 class PopUpViewActivity : AppCompatActivity() {
     val TAG = "PopUpViewActivity"
 
-    lateinit var viewData : MarkerDataVO
+    private lateinit var viewData : MarkerDataVO
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -64,7 +60,6 @@ class PopUpViewActivity : AppCompatActivity() {
             }
             alertDialog.show()
         }
-
 
 
         if(TestActivity().getWifiInfo(this)) {

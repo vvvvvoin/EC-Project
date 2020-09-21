@@ -48,7 +48,7 @@ interface MarkerService {
         @Part("writer") writer: String,
         @Part("address") address: String,
         @Part file : List<MultipartBody.Part>?
-    ) : Single<List<MarkerDataVO>>
+    ) : Single<MarkerDataVO>
 
     @FormUrlEncoded
     @POST("EarthCommunity/getMarker.do")

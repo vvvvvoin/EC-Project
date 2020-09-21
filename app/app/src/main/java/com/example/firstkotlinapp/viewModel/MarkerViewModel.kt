@@ -2,12 +2,10 @@ package com.example.firstkotlinapp.viewModel
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -18,8 +16,6 @@ import com.example.firstkotlinapp.repository.RetrofitRepository
 import com.example.firstkotlinapp.repository.RoomRepository
 import com.example.firstkotlinapp.util.makeMultipartBody
 import okhttp3.MultipartBody
-import java.io.BufferedInputStream
-import java.io.InputStream
 
 class MarkerViewModel(application: Application) : AndroidViewModel(application) {
     private val TAG = "MarkerViewModel"
@@ -41,15 +37,15 @@ class MarkerViewModel(application: Application) : AndroidViewModel(application) 
         _mDBMarkDataOne.postValue(roomRepository.getOne(seq))
     }
 
-    fun insert(markerDataVO: MarkerDataVO){
+    fun mDBInsert(markerDataVO: MarkerDataVO){
         roomRepository.insert(markerDataVO)
     }
 
-    fun update(markerDataVO: MarkerDataVO){
+    fun mDBUpdate(markerDataVO: MarkerDataVO){
         roomRepository.update(markerDataVO)
     }
 
-    fun delete(markerDataVO: MarkerDataVO){
+    fun mDBDelete(markerDataVO: MarkerDataVO){
         roomRepository.delete(markerDataVO)
     }
 
@@ -79,29 +75,53 @@ class MarkerViewModel(application: Application) : AndroidViewModel(application) 
         lng: Double,
         writer: String,
         address: String,
-        selectImageUri: Uri
+        selectImageUri: Uri?
     ) {
-        val imageList = mutableListOf<MultipartBody.Part>()
-        imageList.add(makeMultipartBody(selectImageUri, app))
+        val asyncData : MarkerDataVO
+        if(selectImageUri != null){
+            val imageList = mutableListOf<MultipartBody.Part>()
+            imageList.add(makeMultipartBody(selectImageUri, app))
+            asyncData = MarkerDataVO(seq, subject, snippet, lat, lng, writer, address, selectImageUri.toString())
+            retrofitRepository.putDataWithImage(seq, subject, snippet, lat, lng, writer, address, imageList).subscribe({
+                Log.d(TAG, "데이터(비동기) 삽입 성공")
+                mDBDelete(asyncData)
+                mDBInsert(MarkerDataVO(it.seq, it.subject, it.snippet, it.lat, it.lng, it.writer, it.address, "true"))
+            }, {
+                Log.d(TAG, "데이터 삽입 실패, Room에 비동기 데이터로 전환합니다")
+                if(mDBMarkDataList.value?.contains(asyncData)!!){
+                    mDBUpdate(asyncData)
+                }else{
+                    mDBInsert(asyncData)
+                }
+            })
+        }else{
+            asyncData = MarkerDataVO(seq, subject, snippet, lat, lng, writer, address, "true")
+            retrofitRepository.putDataWithImage(seq, subject, snippet, lat, lng, writer, address, null).subscribe({
+                Log.d(TAG, "데이터(비동기) 삽입 성공")
+                mDBDelete(asyncData)
+                mDBInsert(MarkerDataVO(it.seq, it.subject, it.snippet, it.lat, it.lng, it.writer, it.address, "true"))
+            }, {
+                Log.d(TAG, "데이터 삽입 실패, Room에 비동기 데이터로 전환합니다")
+                if(mDBMarkDataList.value?.contains(asyncData)!!){
+                    mDBUpdate(asyncData)
+                }else{
+                    mDBInsert(asyncData)
+                }
+            })
+        }
+    }
 
-        retrofitRepository.putDataWithImage(seq, subject, snippet, lat, lng, writer, address, imageList).subscribe({
-            Log.d(TAG, "데이터(비동기) 삽입 성공")
-            update(MarkerDataVO(seq, subject, snippet, lat, lng, writer, address, "true"))
-        }, {
-            Log.d(TAG, "데이터 삽입 실패, Room에 비동기 데이터로 전환합니다")
-            val asyncData = MarkerDataVO(seq, subject, snippet, lat, lng, writer, address, selectImageUri.toString())
-            if(mDBMarkDataList.value?.contains(asyncData)!!){
-                update(asyncData)
-            }else{
-                insert(asyncData)
-            }
-        })
+    fun deleteMarker(seq: Int){
+        retrofitRepository.deleteData(seq)
     }
 
     @SuppressLint("CheckResult")
     fun getMarkerImage(seq: Int){
         retrofitRepository.getMarkerImage(seq).subscribe({
-            _markerImage.postValue(decodeSampledBitmapFromResource(it.byteStream(), 300, 300))
+            Log.d(TAG, "getMarkerImage 성공")
+            Log.d(TAG, it.toString())
+            _markerImage.postValue(BitmapFactory.decodeStream((it.byteStream())))
+            //_markerImage.postValue(decodeSampledBitmapFromResource(it.byteStream(), 400, 400))
         },{
             Log.d(TAG, "getMarkerImage 오류 = ${it}")
             val bitmap = resource.getDrawable(R.drawable.ic_default_image, null).toBitmap()
@@ -118,7 +138,7 @@ class MarkerViewModel(application: Application) : AndroidViewModel(application) 
         })
     }
 
-    private fun decodeSampledBitmapFromResource(
+/*    private fun decodeSampledBitmapFromResource(
         res: InputStream,
         reqWidth: Int,
         reqHeight: Int
@@ -158,5 +178,5 @@ class MarkerViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
         return inSampleSize
-    }
+    }*/
 }

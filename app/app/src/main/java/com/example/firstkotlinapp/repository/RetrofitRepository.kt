@@ -24,7 +24,7 @@ class RetrofitRepository() {
         writer: String,
         address: String,
         file: MutableList<MultipartBody.Part>?
-    ): Single<List<MarkerDataVO>> {
+    ): Single<MarkerDataVO> {
         return retrofit.putDataWithImage(seq, subject, snippet, lat, lng, writer, address, file)
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
