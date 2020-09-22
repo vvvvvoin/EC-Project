@@ -802,3 +802,17 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 - 추후 로그인 기능이 추가될 예정이기에 작성자 탭은 삭제시켰다
 
 - 다수의 이미지 선택 후 onActivityResult에서 어떻게 Uri를 처리하는지 방법을 찾는 중이다.
+
+### 2020.09.22
+
+- editActivity에서 2개 이상의 이미지도 recyclerView에서 처리할 수 있도록 했다
+- 기존에 다수의 이미지를 저정할수 있도록 만든 스프링 컨트롤러 정상작동하여 db, resource에 저장잘 됨
+- 다수의 이미지를 가지는 비동기 데이터도 동기화처리할 수 있게함
+  - 기존에 방법과 마찬가지로 uri리스트를 스트링으로 변환하여 mDB에 저장 후 동기화처리 과정에서 스트링을 uri리스트로 변환시킴
+
+![41](image/41.JPG)
+
+- 마지막으로 서버에서 다수의 이미지를 보낼때 안드로이드가 처리하는 기능만 만들면 된다.
+- optionItem 글자 스타일 수정해야함
+
+- 카테고리 추가기능 만들어야함

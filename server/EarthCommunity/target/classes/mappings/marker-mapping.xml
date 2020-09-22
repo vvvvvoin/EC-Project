@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MarkerDAO">
+
+	<resultMap id="markerResult" type="marker">
+		<id property="seq" column="SEQ" />
+		<result property="subject" column="SUBJECT" />
+		<result property="content" column="CONTENT" />
+		<result property="lat" column="LAT" />
+		<result property="lng" column="LNG" />
+		<result property="writer" column="WRITER" />
+		<result property="address" column="ADDRESS" />
+	</resultMap>
+	
+	<insert id="insertMarker" parameterType="marker">
+		<![CDATA[
+		INSERT INTO MARKER(SEQ, SUBJECT, CONTENT, LAT, LNG, WRITER, ADDRESS) 
+		VALUES((SELECT NVL(MAX(SEQ), 0) + 1 FROM MARKER), 
+		#{subject}, #{content}, #{lat}, #{lng}, #{writer}, #{address})
+		]]>
+	</insert>
+
+
+	<insert id="insertImages" parameterType="markerImage">
+		<![CDATA[
+		INSERT INTO IMAGES(SEQ, ID, FILE_ADDRESS) 
+		VALUES((SELECT NVL(MAX(SEQ), 0) + 1 FROM IMAGES), 
+		#{id}, #{file_address})
+		]]>
+	</insert>
+
+
+	<update id="updateMarker">
+		<![CDATA[
+		UPDATE MARKER SET
+		SUBJECT = #{subject},
+		CONTENT = #{content}
+		WHERE SEQ = #{seq}
+		]]>
+	</update>
+
+	<delete id="deleteMarker">
+		<![CDATA[
+		DELETE MARKER
+		WHERE SEQ = #{seq}
+		]]>
+	</delete>
+	
+	<delete id="deleteMarkerImage" parameterType="markerImage">
+		<![CDATA[
+		DELETE IMAGES
+		WHERE ID = #{id}
+		]]>
+	</delete>
+
+	<select id="getMarker" resultType="marker">
+		<![CDATA[
+		SELECT *
+		FROM MARKER
+		WHERE SEQ = #{seq}
+		]]>
+	</select>
+	
+	<select id="getLatestMarker" resultType="int">
+		<![CDATA[
+		SELECT NVL(MAX(SEQ), 0) 
+		FROM MARKER
+		]]>
+	</select>
+	
+	<select id="getMarkerWithSearch" resultType="marker">
+		<![CDATA[
+		SELECT *
+		FROM MARKER
+		WHERE SUBJECT LIKE '%' || #{searchString} || '%' OR CONTENT LIKE '%' || #{searchString} || '%' 
+		]]>
+	</select>
+
+	<select id="getMarkerList" resultMap="markerResult">
+		SELECT *
+		FROM MARKER
+		ORDER BY SEQ DESC
+	</select>
+	
+	<select id="getMarkerImageList" parameterType="marker" resultType="markerImage">
+		SELECT * 
+		FROM IMAGES
+		WHERE ID = #{seq}
+		ORDER BY SEQ DESC
+	</select>
+	
+</mapper>
