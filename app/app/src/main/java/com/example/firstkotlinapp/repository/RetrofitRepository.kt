@@ -3,6 +3,7 @@ package com.example.firstkotlinapp.repository
 import android.annotation.SuppressLint
 import android.util.Log
 import com.example.firstkotlinapp.dataClass.MarkerDataVO
+import com.example.firstkotlinapp.dataClass.MarkerImageVO
 import com.example.firstkotlinapp.retrofit.OkHttpManager
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -65,8 +66,14 @@ class RetrofitRepository() {
     //////////////////////////////////////////////////// end Of Marker CRUD
 
     @SuppressLint("CheckResult")
-    fun getMarkerImage(seq: Int): Single<ResponseBody> {
-        return retrofit.getImage(seq)
+    fun getMarkerImageAddress(seq: Int): Single<List<MarkerImageVO>> {
+        return retrofit.getImageAddress(seq)
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.io())
+    }
+
+    fun getMarkerImage(file_address : String) : Single<ResponseBody>{
+        return retrofit.getImage(file_address)
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
     }

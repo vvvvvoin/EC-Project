@@ -33,7 +33,7 @@ class OkHttpManager {
         val CONNECT_TIMEOUT: Long = 15
         val WRITE_TIMEOUT: Long = 15
         val READ_TIMEOUT: Long = 15
-        val API_URL: String = "http://211.221.95.181:8080/"
+        val API_URL: String = "http://14.34.117.29:8080/"
         var mOKHttpClient: OkHttpClient
         var mRetrofit: Retrofit
         var mKotlinRetrofitInterface: MarkerService
@@ -138,28 +138,28 @@ class OkHttpManager {
         return null
     }
 
-    @SuppressLint("CheckResult")
-    fun getImage(seq: Int, popupViewImageview: ImageView){
-        var bitmap :Bitmap? = null
-        OkHttpManager.KotlinOKHttpRetrofitRxJavaManager.getInstance().getImage(seq)
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
-            .subscribe({
-                Log.d(TAG, "이미지 불러오기 성공")
-                CoroutineScope(Dispatchers.Main).launch {
-                    async(Dispatchers.IO) {
-                        val inputStream = it.byteStream()
-                        Log.d(TAG, " BitmapFactory.decodeStream(inputStream)")
-                        bitmap= BitmapFactory.decodeStream(inputStream)
-                    }.await().let {
-                        popupViewImageview.setImageBitmap(bitmap)
-                        Log.d(TAG, " popupViewImageview.setImageBitmap(it)")
-                    }
-                }
-            }, {
-                Log.d(TAG, "이미지 불러오기 실패")
-            })
-    }
+//    @SuppressLint("CheckResult")
+//    fun getImage(seq: Int, popupViewImageview: ImageView){
+//        var bitmap :Bitmap? = null
+//        OkHttpManager.KotlinOKHttpRetrofitRxJavaManager.getInstance().getImage(seq)
+//            .subscribeOn(Schedulers.io())
+//            .observeOn(Schedulers.io())
+//            .subscribe({
+//                Log.d(TAG, "이미지 불러오기 성공")
+//                CoroutineScope(Dispatchers.Main).launch {
+//                    async(Dispatchers.IO) {
+//                        val inputStream = it.byteStream()
+//                        Log.d(TAG, " BitmapFactory.decodeStream(inputStream)")
+//                        bitmap= BitmapFactory.decodeStream(inputStream)
+//                    }.await().let {
+//                        popupViewImageview.setImageBitmap(bitmap)
+//                        Log.d(TAG, " popupViewImageview.setImageBitmap(it)")
+//                    }
+//                }
+//            }, {
+//                Log.d(TAG, "이미지 불러오기 실패")
+//            })
+//    }
 
     @SuppressLint("CheckResult")
     fun updateData(seq : Int, subject: String, content: String) {

@@ -84,20 +84,29 @@ public class MarkerController {
 	
 
 	// 마커 클릭시 사진 받기
-	@RequestMapping("/getImage")
-	public String getImage(MarkerDataVO vo) throws Exception {
+	@RequestMapping("/getImageAddress")
+	@ResponseBody
+	public List<MarkerImageVO> getImage(MarkerDataVO vo) throws Exception {
 		List<MarkerImageVO> fileAddressList;
-		String fileName = "";
+		List<MarkerImageVO> returnFileList = new ArrayList<MarkerImageVO>();
+
 		System.out.println("전달받은 객체의 seq = " + vo.getSeq());
 		fileAddressList = markerService.getMarkerImageList(vo);
-
-		for (MarkerImageVO imageVO : fileAddressList) {
-			System.out.println(imageVO.getFile_address());
-			fileName = imageVO.getFile_address().replace(uploadPath , "");
-			System.out.println(fileName);
-			return "redirect:markerImg/" + fileName;
+		
+		for(int i = 0; i < fileAddressList.size(); i++) {
+			MarkerImageVO temp = fileAddressList.get(i);
+			temp.setFile_address(temp.getFile_address().replace(uploadPath+"\\\\" , ""));
+			returnFileList.add(temp);
 		}
-		return "";
+		
+		return returnFileList;
+//		for (MarkerImageVO imageVO : fileAddressList) {
+//			System.out.println(imageVO.getFile_address());
+//			fileName = imageVO.getFile_address().replace(uploadPath+"\\\\" , "");
+//			System.out.println(fileName);
+//			return "redirect:markerImg/" + fileName;
+//		}
+//		return "";
 	}
 	
 	//이미지 업로드를 위해 테스트하기 위해 만듬

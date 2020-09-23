@@ -16,6 +16,7 @@ import com.example.firstkotlinapp.repository.RetrofitRepository
 import com.example.firstkotlinapp.repository.RoomRepository
 import com.example.firstkotlinapp.util.makeMultipartBody
 import okhttp3.MultipartBody
+import java.io.BufferedInputStream
 
 class MarkerViewModel(application: Application) : AndroidViewModel(application) {
     private val TAG = "MarkerViewModel"
@@ -62,6 +63,11 @@ class MarkerViewModel(application: Application) : AndroidViewModel(application) 
     val markerImage: LiveData<Bitmap>
         get() = _markerImage
 
+    private val _markerImageSize = MutableLiveData<Int>()
+    val markerImageSize: LiveData<Int>
+        get() = _markerImageSize
+
+
     suspend fun getSearchMarkerData(searchKeyWord: String) {
         _searchLiveData.postValue(retrofitRepository.getSearchMarkerData(searchKeyWord))
     }
@@ -75,13 +81,23 @@ class MarkerViewModel(application: Application) : AndroidViewModel(application) 
         lng: Double,
         writer: String,
         address: String,
-        selectImageUri: Uri?
+        selectImageUriList: ArrayList<Uri>?
     ) {
         val asyncData : MarkerDataVO
-        if(selectImageUri != null){
+        if(selectImageUriList != null){
             val imageList = mutableListOf<MultipartBody.Part>()
-            imageList.add(makeMultipartBody(selectImageUri, app))
-            asyncData = MarkerDataVO(seq, subject, snippet, lat, lng, writer, address, selectImageUri.toString())
+
+            val stringList = ArrayList<String>()
+            for(image in selectImageUriList){
+                imageList.add(makeMultipartBody(image, app))
+                stringList.add(image.toString())
+            }
+            var imageString = stringList.toString()
+            imageString = imageString.replace("[", "")
+            imageString = imageString.replace("]", "")
+
+            asyncData = MarkerDataVO(seq, subject, snippet, lat, lng, writer, address, imageString)
+
             retrofitRepository.putDataWithImage(seq, subject, snippet, lat, lng, writer, address, imageList).subscribe({
                 Log.d(TAG, "데이터(비동기) 삽입 성공")
                 mDBDelete(asyncData)
@@ -95,7 +111,7 @@ class MarkerViewModel(application: Application) : AndroidViewModel(application) 
                 }
             })
         }else{
-            asyncData = MarkerDataVO(seq, subject, snippet, lat, lng, writer, address, "true")
+            asyncData = MarkerDataVO(seq, subject, snippet, lat, lng, writer, address, "false")
             retrofitRepository.putDataWithImage(seq, subject, snippet, lat, lng, writer, address, null).subscribe({
                 Log.d(TAG, "데이터(비동기) 삽입 성공")
                 mDBDelete(asyncData)
@@ -116,18 +132,36 @@ class MarkerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     @SuppressLint("CheckResult")
-    fun getMarkerImage(seq: Int){
-        retrofitRepository.getMarkerImage(seq).subscribe({
-            Log.d(TAG, "getMarkerImage 성공")
-            Log.d(TAG, it.toString())
-            _markerImage.postValue(BitmapFactory.decodeStream((it.byteStream())))
-            //_markerImage.postValue(decodeSampledBitmapFromResource(it.byteStream(), 400, 400))
+    fun getMarkerImageAddress(seq: Int){
+        retrofitRepository.getMarkerImageAddress(seq).subscribe({
+            Log.d(TAG, "getMarkerImageAddress 성공")
+            if(it.isEmpty()){
+                _markerImageSize.postValue(1)
+                _markerImage.postValue(app.resources.getDrawable(R.drawable.ic_default_image, null).toBitmap())
+            }else{
+                _markerImageSize.postValue(it.size)
+                for( address in it){
+                    getMarkerImage(address.file_address)
+                }
+            }
+
+        },{
+            Log.d(TAG, "getMarkerImageAddress 오류 = ${it}")
+
+        })
+    }
+
+    @SuppressLint("CheckResult")
+    fun getMarkerImage(file_address : String){
+        retrofitRepository.getMarkerImage(file_address).subscribe({
+            _markerImage.postValue(BitmapFactory.decodeStream(BufferedInputStream(it.byteStream())))
         },{
             Log.d(TAG, "getMarkerImage 오류 = ${it}")
             val bitmap = resource.getDrawable(R.drawable.ic_default_image, null).toBitmap()
             _markerImage.postValue(Bitmap.createBitmap(bitmap))
         })
     }
+
 
     @SuppressLint("CheckResult")
     fun getFirstLiveDataList() {

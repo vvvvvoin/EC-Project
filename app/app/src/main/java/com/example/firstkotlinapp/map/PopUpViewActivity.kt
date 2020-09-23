@@ -31,7 +31,7 @@ class PopUpViewActivity : AppCompatActivity() {
         popup_content_textView.text = viewData.snippet
         popup_address_textView.text = viewData.address
 
-        OkHttpManager().getImage(viewData.seq ,popup_View_imageView)
+        //OkHttpManager().getImage(viewData.seq ,popup_View_imageView)
 
         back.setOnClickListener {
             val intent = Intent(this, TestActivity::class.java)

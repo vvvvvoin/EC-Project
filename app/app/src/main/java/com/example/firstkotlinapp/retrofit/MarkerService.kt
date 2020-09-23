@@ -1,17 +1,10 @@
 package com.example.firstkotlinapp.retrofit
 
-import android.graphics.Bitmap
-import android.media.Image
-import com.example.firstkotlinapp.dataClass.BoardVO
 import com.example.firstkotlinapp.dataClass.MarkerDataVO
+import com.example.firstkotlinapp.dataClass.MarkerImageVO
 import io.reactivex.Single
-import kotlinx.coroutines.Deferred
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import okhttp3.Response
 import okhttp3.ResponseBody
-import okio.Utf8
-import retrofit2.Call
 import retrofit2.http.*
 
 interface MarkerService {
@@ -62,11 +55,18 @@ interface MarkerService {
         @Field("searchString") searchString: String
     ) : retrofit2.Response<List<MarkerDataVO>>
 
-    @FormUrlEncoded
-    @POST("EarthCommunity/getImage")
+
+    @POST("EarthCommunity/markerImg/{file_address}")
     fun getImage(
-        @Field("seq") seq: Int
+        @Path("file_address") file_address: String
     ) : Single<ResponseBody>
+
+    @FormUrlEncoded
+    @POST("EarthCommunity/getImageAddress")
+    fun getImageAddress(
+        @Field("seq") seq: Int
+    ) : Single<List<MarkerImageVO>>
+
 
     @FormUrlEncoded
     @POST("EarthCommunity/updateMarker.do")

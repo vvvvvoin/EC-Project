@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/marker_view_layout">
+
+    <ImageView
+        android:id="@+id/marker_view_imageView"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:maxWidth="300dp"
+        android:maxHeight="300dp"
+        android:layout_marginStart="5dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter" />
+
+
+    <!--    <ImageView
+        android:id="@+id/bottom_sheet_detail_imageView"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_marginStart="5dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter" />-->
+
+</LinearLayout>

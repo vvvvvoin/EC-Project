@@ -22,7 +22,8 @@
         android:supportsRtl="true"
         android:theme="@style/MapAppTheme">
         <activity
-            android:name=".map.PopUpEditActivity2" />
+            android:name=".map.PopUpEditActivity2"
+            android:windowSoftInputMode="adjustResize|adjustPan"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
