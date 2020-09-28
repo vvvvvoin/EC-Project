@@ -899,3 +899,19 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 
 - 구글 아이콘을 클릭시 해당 핸드폰에 로그인된 구글계정을 보여주고 해당 계정 클릭시 해당계정으로 로그인됨
 - 디자인 수정은 지속적으로 변경될 예정
+
+### 2020.09.28
+
+- bottomNavigation 에 사용자 정보를 표시하고 로그아웃할 수 있는 프래그먼트 추가함
+
+- Splash Activity를 추가하고 해당 액티비티에서 권한 설정을 할 수 있게 만듬
+
+- Splash Activity를 추가하면서 액티비티 시작전 흰색 화면이 나타나 style.xml에 다음을 추가하여 해결함 
+
+  ```xml
+  <item name="android:windowIsTranslucent">true</item>
+  ```
+
+- 하지만  `Only fullscreen opaque activities can request orientation`오류가 발생했는데 일단 정상작동하도록 해결했는데 해당 오류에 대해 더 찾아볼 예정
+
+  
