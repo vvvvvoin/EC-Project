@@ -13,8 +13,10 @@ import android.widget.LinearLayout
 import androidx.core.graphics.drawable.toBitmap
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.Glide.with
 import com.bumptech.glide.Priority
 import com.example.firstkotlinapp.R
+import com.example.firstkotlinapp.util.MyGlideApp
 import com.google.android.flexbox.FlexboxLayout
 import kotlinx.android.synthetic.main.marker_popup_edit.*
 import kotlinx.android.synthetic.main.search_list_bottom_sheet_detail03.*

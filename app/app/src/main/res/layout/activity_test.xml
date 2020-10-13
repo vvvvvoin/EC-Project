@@ -21,6 +21,7 @@
             tools:context=".map.TestActivity">
 
 
+
             <fragment
                 android:id="@+id/map"
                 android:name="com.google.android.gms.maps.SupportMapFragment"
@@ -92,6 +93,10 @@
             app:layout_constraintStart_toStartOf="parent"
             app:menu="@menu/bottom_nav_menu" />
 
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/frameLayout_inside"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

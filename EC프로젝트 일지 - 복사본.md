@@ -1,4 +1,27 @@
-## 일지
+## EC Project 일지
+
+- 목표 : 마커를 이용하여 다양한 카테고리로 분류하여 이용자가 원하는 마커를 찾고 등록함으로써 서로 소통할 수 있는 애플리케이션
+- 환경
+  - AndroidStudio 4.0, only Kotlin
+  - Spring Legacy Project
+- 사용된 라이브러리
+  - RxJAVA
+  - Retrofit
+  - OkHttp3
+  - GSON
+  - Coroutine
+  - Room
+  - ViewModel
+  - LiveData
+  - ContentResolver
+  - GoogleMap
+  - BottomSheet
+  - Glide
+  - ViewPager2
+  - BottomNavigation
+  - TabLayout
+  - RecyclerAdapter
+  - FragmentStateAdapter
 
 ### 2020.07.16
 
@@ -292,10 +315,6 @@
 
 ![15](image/15.JPG)
 
-### 2020.08.04 ~ 08.05
-
-- 면접 스터디, 면접준비, 면접으로 인해 잠시 중단
-
 ### 2020.08.06
 
 - 서버
@@ -446,10 +465,6 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 
 ![21](image/21.JPG)
 
-### 2020.08.15
-
-- 수정안함
-
 ### 2020.08.16
 
 - 삭제 디버깅관련
@@ -475,10 +490,6 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 <img src="image/22.JPG" alt="22" style="zoom:50%;" />
 
 - 소스파일 업로드
-
-### 2020.08.18
-
-- 작업없음
 
 ### 2020.08.19
 
@@ -538,10 +549,6 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 
 - recyclerView, ViewPager는 viewType을 나누어 하나 어탭터로 사용함
 
-### 2020.08.24
-
-- 작업없음
-
 ### 2020.08.25
 
 - 구글맵처럼 마커를 클릭시 CoordinatorLayout과 bottomSheet를 이용하여 보여줄려고 했는데 상당히 어럽다
@@ -573,10 +580,6 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 
 - 모든 디자인을 통일시키고 상세뷰를 내릴때 다시 viewPager가 나타날 수 있도록 수정할 예정
 
-### 2020.08.28
-
-- 작업없음
-
 ### 2020.08.29
 
 - 드래그로 viewPager를 이동시켜 BottomSheet가 나오게 할려했는데 실패했다.
@@ -592,10 +595,6 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 
 - viewPager외에 floatingButton을 이용하여 List형태로도 추가해야한다
 - viewPager에 vo객체로 담아야한다
-
-### 2020.08.30
-
-- 작업 없음
 
 ### 2020.08.31
 
@@ -649,10 +648,6 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
   - 문제의 해결책으로 클러스터매니저, 랜더러를 상황에 맞게 계속 제거, 생성해주는 것이 있다. 좋은 방법같지 않다
   - 앱의 기능과 목적에 맞게 다시 생각해야 해결책이 있을거같다
 
-### 2020.09.03 ~ 2020.09.04
-
-- 작업 없음
-
 ### 2020.09.06
 
 - 마커를 클릭시 최근 위치와 줌레벨을 기억하고 마커뷰를 닫을시 다시 최근의 위치와 줌레벨로 복귀하는 기능 구현
@@ -692,10 +687,6 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 
 - 기존의 검색기능 중 일부 불필요한 코드제거함
 
-### 2020.09.09
-
-- 기업 시험
-
 ### 2020.09.10
 
 - 기존에는 Retrofit만 MVVM 패턴으로 변경했고, 이번에는 RxJAVA + Retrofit을 MVVM 패턴으로 변경하였다
@@ -734,10 +725,6 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 - Glide 라이브러리 자체에 웹URL을 통해 out of memory문제를 해결하며 ImageView에 표시하는 자체기능이 있다
   - 이방법이 더 간단하여 retrofit을 사용하지 않고 간단하게 되는지 테스트할 예정
 
-### 2020.09.12
-
-- 기업시험
-
 ### 2020.09.13
 
 - Glide자체의 URL로 이미지를 불어올 수 있지만 다른 예외사항에 대해 처리가 불리할 수 있기에 기존의 Retorift방식을 유지한다
@@ -762,10 +749,6 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 - detailBottomSheet에 내부저장소에 마커를 저장할 수 있도록 기능을 추가했다
   - 이미지 저장 관련해서는 좀더 생각해봐야 해야겠다.
 
-### 2020.09.15
-
-- 작업없음
-
 ### 2020.09.16
 
 - 기존의 Retrofit, Room 코드만을 MVVM패턴에 맞게 전부 변환하였다
@@ -785,10 +768,6 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
   - 마커 등록처리는 거의 완성되었다
 - 마커의 뷰가 bottomSheet로 변경되어 아직 수정, 삭제는 어떻게 디자인할지 생각 중이다.
 - 디자인이 잡히면 수정, 삭제 추가될 예정
-
-### 2020.09.17 ~ 2020.09.20
-
-- 작없없음
 
 ### 2020.09.21
 
@@ -880,10 +859,6 @@ java.lang.SecurityException: Permission Denial: opening provider com.android.pro
 - 디자인은 지속적으로 수정할 예정
 
 ![46](image/46.JPG)
-
-### 2020.09.28
-
-- 작없없음
 
 ### 2020.09.27
 

@@ -18,6 +18,7 @@ import com.example.firstkotlinapp.dataClass.MarkerDataVO
 import com.example.firstkotlinapp.recycler.list.LinearLayoutManagerWrapper
 import com.example.firstkotlinapp.recycler.list.MarkerEditImageAdapter
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_pop_up_edit2.*
 
 
@@ -25,6 +26,8 @@ class PopUpEditActivity2 : AppCompatActivity() {
     private val TAG = "PopUpEditActivity2"
     private val OPEN_GALLERY = 6000
     private var selectImage: Uri? = null
+
+    private lateinit var auth : FirebaseAuth
 
     private var imageList = arrayListOf<Uri>()
     private lateinit var imageRecyclerView : RecyclerView
@@ -36,6 +39,8 @@ class PopUpEditActivity2 : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pop_up_edit2)
+
+        auth = FirebaseAuth.getInstance()
 
         setSupportActionBar(marker_edit_toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -92,7 +97,6 @@ class PopUpEditActivity2 : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.marker_edit_menu, menu)
-
         return true
     }
 
@@ -107,7 +111,7 @@ class PopUpEditActivity2 : AppCompatActivity() {
                 Toast.makeText(this, "저장버튼", Toast.LENGTH_SHORT).show()
                 val subject = popup_edit_title_EditText.text.toString()
                 val content = popup_edit_content_EditText.text.toString()
-                val writer = "뷔"
+                val writer = auth.currentUser?.displayName!!
                 val address = GeoCoder().getAddress(this, LatLng(lat, lng))
 
                 val data = MarkerDataVO(0, subject, content, lat, lng, writer, address)

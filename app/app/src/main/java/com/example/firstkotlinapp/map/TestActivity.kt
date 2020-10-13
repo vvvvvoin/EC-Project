@@ -4,12 +4,14 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
 import android.net.wifi.WifiManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
@@ -23,6 +25,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.net.toUri
 import androidx.core.widget.NestedScrollView
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -34,7 +37,10 @@ import com.example.firstkotlinapp.dataBase.AppDatabase
 import com.example.firstkotlinapp.dataBase.MarkerDAO
 import com.example.firstkotlinapp.dataClass.MarkerDataVO
 import com.example.firstkotlinapp.map.customView.SearchBar01CustomView
+import com.example.firstkotlinapp.map.fragment.MyMarkerFragment
+import com.example.firstkotlinapp.map.fragment.MyMarkerFragment2
 import com.example.firstkotlinapp.map.fragment.SearchFragment
+import com.example.firstkotlinapp.map.fragment.SettingFragment
 import com.example.firstkotlinapp.recycler.list.*
 import com.example.firstkotlinapp.viewModel.MarkerViewModel
 import com.example.firstkotlinapp.retrofit.OkHttpManager
@@ -49,6 +55,7 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import com.google.maps.android.clustering.ClusterManager
 import kotlinx.android.synthetic.main.activity_test.*
 import kotlinx.android.synthetic.main.search_list_bottom_sheet_detail01.*
@@ -67,6 +74,8 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
     private var latestLatLngFlag : Boolean = false
     private  var latestZoomLevel : Float = 0.0F
 
+    private lateinit var auth : FirebaseAuth
+
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest : LocationRequest
 
@@ -81,7 +90,7 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
     var REQUIRED_PERMISSIONS = arrayOf<String>(
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION,
-        Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.MANAGE_DOCUMENTS
+        Manifest.permission.READ_EXTERNAL_STORAGE
     )
     private val UPDATE_INTERVAL_MS = 500 // 0.5초
     private val FASTEST_UPDATE_INTERVAL_MS = 250 // 0.25초
@@ -127,6 +136,12 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test)
+
+
+        auth = FirebaseAuth.getInstance()
+        Log.d(TAG, "현재 유저는 = ${auth.currentUser?.displayName}")
+        Log.d(TAG, "현재 유저는 = ${auth.currentUser?.email}")
+
 
         mLayout = findViewById(R.id.map_layout)
         searchBar = findViewById(R.id.searchCustom01)
@@ -180,7 +195,7 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
                         Log.d(TAG, "STATE_HIDDEN")
                         latestLatLngFlag = false
                         mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(latestLatLng, latestZoomLevel))
-
+                        //markerViewImageAdapter?.clearList()
                         val bitmap = applicationContext.resources.getDrawable(R.drawable.ic_map_marker04, null)?.toBitmap()
                         clusterRenderer.getMarker(clusterRendererData)?.setIcon(BitmapDescriptorFactory.fromBitmap(Bitmap.createBitmap(bitmap!!)))
                         searchCustom01.visibility = View.VISIBLE
@@ -286,7 +301,6 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
         //////////////////// 새롭게 추가된 라이브 데이터 검색결과 반영시키기///////////////////////////////////////
         model.searchBarText.observe(this, Observer {
             Log.d(TAG, "observe 실행됨")
-
             searchBar.getSearchTextView().text = it
         })
 
@@ -328,7 +342,9 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
 
         // DetailView를 클릭했을 경우 변경된 liveData로 변경
         model2.markerImage.observe(this, Observer {
-            markerViewImageAdapter!!.addImageItem(it)
+            if(it.seq == clusterRendererData.seq){
+                markerViewImageAdapter!!.addImageItem(it.image)
+            }
         })
 
         locationRequest = LocationRequest().setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY).setInterval(UPDATE_INTERVAL_MS.toLong()).setFastestInterval(FASTEST_UPDATE_INTERVAL_MS.toLong())
@@ -408,12 +424,58 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
                 commit()
             }
         }
+
+        bottomNavigation.setOnNavigationItemSelectedListener {
+            val transaction = supportFragmentManager.beginTransaction()
+            var selectTag = "tag"
+            when(it.itemId){
+                R.id.bottom_navigation_menu_01 -> {
+                    transaction.addToBackStack("map")
+                    transaction.commit()
+                    return@setOnNavigationItemSelectedListener true
+                }
+                R.id.bottom_navigation_menu_02 -> {
+                    transaction.replace(R.id.frameLayout_inside, MyMarkerFragment.newInstance(), "my_marker")
+                    selectTag = "my_marker"
+                }
+                R.id.bottom_navigation_menu_03 -> {
+                    transaction.replace(R.id.frameLayout_inside, MyMarkerFragment2.newInstance(), "my_marker2")
+                    selectTag = "my_marker2"
+                }
+                R.id.bottom_navigation_menu_04 -> {
+                    transaction.replace(R.id.frameLayout_inside, SettingFragment.newInstance(), "setting")
+                    selectTag = "setting"
+                }
+            }
+            Log.d(TAG, "최근 프래그먼트 태그 = ${supportFragmentManager.fragments.last().tag}")
+
+            if(supportFragmentManager.fragments.last().tag != selectTag){
+                transaction.addToBackStack(selectTag)
+            }
+            Log.d(TAG, "프래그먼트 수 = ${supportFragmentManager.backStackEntryCount}")
+            transaction.commit()
+            return@setOnNavigationItemSelectedListener true
+        }
+
+
         searchCustom01.getHambugerButton().setOnClickListener {
             Toast.makeText(this, "햄버거", Toast.LENGTH_SHORT).show()
         }
 
         mapFragment.getMapAsync(this)
     }
+
+    fun updateBottomMenu(navigation: BottomNavigationView) {
+        val tag2: Fragment? = supportFragmentManager.findFragmentByTag("my_marker")
+        val tag3: Fragment? = supportFragmentManager.findFragmentByTag("my_marker2")
+        val tag4: Fragment? = supportFragmentManager.findFragmentByTag("setting")
+
+        if(tag2 != null && tag2.isVisible()) navigation.getMenu().findItem(R.id.bottom_navigation_menu_02).setChecked(true)
+        else if(tag3 != null && tag3.isVisible()) navigation.getMenu().findItem(R.id.bottom_navigation_menu_03).setChecked(true)
+        else if(tag4 != null && tag4.isVisible()) navigation.getMenu().findItem(R.id.bottom_navigation_menu_04).setChecked(true)
+        else navigation.getMenu().findItem(R.id.bottom_navigation_menu_01).setChecked(true)
+    }
+
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
@@ -435,29 +497,6 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
         }
 
         setDefaultLocation()
-
-        val hasFineLocationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-        val hasCoarseLocationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-
-        if (hasFineLocationPermission == PackageManager.PERMISSION_GRANTED &&
-            hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED   ) {
-
-        }else {  //2. 퍼미션 요청을 허용한 적이 없다면 퍼미션 요청이 필요합니다. 2가지 경우(3-1, 4-1)가 있습니다.
-
-            // 3-1. 사용자가 퍼미션 거부를 한 적이 있는 경우에는
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[0])) {
-                // 3-2. 요청을 진행하기 전에 사용자가에게 퍼미션이 필요한 이유를 설명해줄 필요가 있습니다.
-                Snackbar.make(mLayout, "이 앱을 실행하려면 위치 접근 권한이 필요합니다.",
-                    Snackbar.LENGTH_INDEFINITE).setAction("확인") {
-                    ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, PERMISSIONS_REQUEST_CODE)
-                }.show();
-
-            } else {
-                // 4-1. 사용자가 퍼미션 거부를 한 적이 없는 경우에는 퍼미션 요청을 바로 합니다.
-                // 요청 결과는 onRequestPermissionResult에서 수신됩니다.
-                ActivityCompat.requestPermissions( this, REQUIRED_PERMISSIONS, PERMISSIONS_REQUEST_CODE);
-            }
-        }
 
         clusterManager = ClusterManager(this, mMap)
         clusterRenderer = ClusterRenderer(this, mMap, clusterManager)
@@ -517,12 +556,11 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
     // 클러스트 랜더러를 통해 마커 변화, 주변 UI 숨김
     fun showBottomSheetDetail(lat: Double?, lng: Double?, markerDataVO: MarkerDataVO?) {
         markerViewImageAdapter?.clearList()
-
         model2.getMarkerImageAddress(markerDataVO!!.seq)
+        clusterRendererData = markerDataVO
         latestLatLngFlag = true
         search_list_bottomSheet_detail.visibility = View.VISIBLE
         sheetBehaviorDetail.state = BottomSheetBehavior.STATE_EXPANDED
-        clusterRendererData = markerDataVO
 
         if (lat != null && lng != null) {
             mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat  -  0.0015, lng  ), 17f))
@@ -557,6 +595,8 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
 
     override fun onBackPressed() {
         Log.d(TAG, "뒤로가기")
+
+
         // bottomSheetDetail이 확장될때 뒤로가기 버튼으로  닫음
         if(sheetBehaviorDetail.state == BottomSheetBehavior.STATE_EXPANDED){
             sheetBehaviorDetail.state = BottomSheetBehavior.STATE_HIDDEN
@@ -572,13 +612,15 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
             sheetBehaviorViewPager2.state = BottomSheetBehavior.STATE_HIDDEN
             return
         }
-        if(supportFragmentManager.backStackEntryCount != 0){
-            supportFragmentManager.popBackStack()
-            Log.d(TAG, "supportFragmentManager.popBackStack() 로 실행됨")
-        }else{
-            Log.d(TAG, "super.onBackPressed() 로 실행됨")
-            super.onBackPressed()
-        }
+        super.onBackPressed()
+        updateBottomMenu(bottomNavigation)
+//        if(supportFragmentManager.backStackEntryCount != 0){
+//            supportFragmentManager.popBackStack()
+//            Log.d(TAG, "supportFragmentManager.popBackStack() 로 실행됨")
+//        }else{
+//            Log.d(TAG, "super.onBackPressed() 로 실행됨")
+//
+//        }
     }
 
     override fun onMapClick(latlng: LatLng) {
@@ -696,45 +738,6 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
     private fun checkLocationServicesStatus(): Boolean {
         val locationManager: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
-    }
-
-
-    override fun onRequestPermissionsResult(permsRequestCode: Int, permissions: Array<String>, grandResults: IntArray) {
-        if (permsRequestCode == PERMISSIONS_REQUEST_CODE && grandResults.size == REQUIRED_PERMISSIONS.size) {
-            // 요청 코드가 PERMISSIONS_REQUEST_CODE 이고, 요청한 퍼미션 개수만큼 수신되었다면
-            var check_result = true
-            // 모든 퍼미션을 허용했는지 체크합니다.
-            for (result in grandResults) {
-                if (result != PackageManager.PERMISSION_GRANTED) {
-                    check_result = false
-                    break
-                }
-            }
-
-            if (check_result) {
-                // 퍼미션을 허용했다면 위치 업데이트를 시작합니다.
-                startLocationUpdates()
-            } else {
-                // 거부한 퍼미션이 있다면 앱을 사용할 수 없는 이유를 설명해주고 앱을 종료합니다.2 가지 경우가 있습니다.
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[0]) ||
-                    ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[1]) ||
-                    ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[2]) ||
-                    ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[3]) ||
-                    ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[4]) ){
-                    // 사용자가 거부만 선택한 경우에는 앱을 다시 실행하여 허용을 선택하면 앱을 사용할 수 있습니다.
-                    Snackbar.make(
-                        mLayout, "퍼미션이 거부되었습니다. 앱을 다시 실행하여 퍼미션을 허용해주세요. ",
-                        Snackbar.LENGTH_INDEFINITE
-                    ).setAction("확인") { finish() }.show()
-                } else {
-                    // "다시 묻지 않음"을 사용자가 체크하고 거부를 선택한 경우에는 설정(앱 정보)에서 퍼미션을 허용해야 앱을 사용할 수 있습니다.
-                    Snackbar.make(
-                        mLayout, "퍼미션이 거부되었습니다. 설정(앱 정보)에서 퍼미션을 허용해야 합니다. ",
-                        Snackbar.LENGTH_INDEFINITE
-                    ).setAction("확인") { finish() }.show()
-                }
-            }
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent? ) {
@@ -936,7 +939,10 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback , ClusterManager.On
 //            //mFusedLocationClient.removeLocationUpdates(locationCallback)
 //        }
     }
-
+    override fun onDestroy() {
+        auth.signOut()
+        super.onDestroy()
+    }
 
 
 }

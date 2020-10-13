@@ -2,23 +2,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/btHome"
-        android:title="지도"
+        android:id="@+id/bottom_navigation_menu_01"
+        android:title="@string/bottom_navigation_menu_01"
         android:icon="@drawable/ic_map"
         app:showAsAction="always|withText"/>
     <item
-        android:id="@+id/btMessage"
-        android:title="Message"
+        android:id="@+id/bottom_navigation_menu_02"
+        android:title="@string/bottom_navigation_menu_02"
         android:icon="@drawable/ic_gps"
         app:showAsAction="always|withText"/>
     <item
-        android:id="@+id/btProfile"
-        android:title="Profile"
+        android:id="@+id/bottom_navigation_menu_03"
+        android:title="@string/bottom_navigation_menu_03"
         android:icon="@drawable/ic_gps"
         app:showAsAction="always|withText"/>
     <item
-        android:id="@+id/btSetting"
-        android:title="Setting"
-        android:icon="@drawable/ic_gps"
+        android:id="@+id/bottom_navigation_menu_04"
+        android:title="@string/bottom_navigation_menu_04"
+        android:icon="@drawable/ic_dot_dot_dot"
         app:showAsAction="always|withText"/>
 </menu>

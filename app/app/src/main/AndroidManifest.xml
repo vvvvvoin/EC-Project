@@ -21,29 +21,37 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/MapAppTheme">
-        <activity
-            android:name=".map.PopUpEditActivity2"
-            android:windowSoftInputMode="adjustResize|adjustPan"/>
-
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDjMWv7Bi997vH7_t2hVqzyhGXTe0ltfD8" />
 
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
 
-        <activity
-            android:name=".map.TestActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/MapAppTheme"
-            android:windowSoftInputMode="adjustResize|adjustPan">
+        <activity android:name=".SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".auth.SignInActivity"
+            android:windowSoftInputMode="adjustResize|adjustPan">
+        </activity>
+        <activity
+            android:name=".auth.SignUpActivity"
+            android:windowSoftInputMode="adjustResize|adjustPan" />
+
+        <activity
+            android:name=".map.PopUpEditActivity2"
+            android:windowSoftInputMode="adjustResize|adjustPan" />
+
+
+        <activity
+            android:name=".map.TestActivity"
+            android:screenOrientation="unspecified"
+            android:theme="@style/MapAppTheme"
+            android:windowSoftInputMode="adjustResize|adjustPan"/>
+
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />

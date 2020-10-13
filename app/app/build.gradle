@@ -34,6 +34,10 @@ android {
 //        coroutines "enable"
 //    }
 //}
+
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
+
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -46,6 +50,12 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    //firebase
+    implementation 'com.google.firebase:firebase-analytics:17.5.0'
+    implementation 'com.google.firebase:firebase-core:17.5.0'
+    implementation 'com.google.firebase:firebase-auth:19.4.0'
+    implementation 'com.firebaseui:firebase-ui-auth:4.2.1'
 
 
     //implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.30.1'

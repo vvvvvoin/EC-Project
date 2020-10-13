@@ -9,12 +9,10 @@
         android:id="@+id/marker_view_imageView"
         android:layout_width="300dp"
         android:layout_height="300dp"
-        android:maxWidth="300dp"
-        android:maxHeight="300dp"
+
         android:layout_marginStart="5dp"
         android:adjustViewBounds="true"
-        android:scaleType="fitCenter" />
-
+        android:scaleType="centerInside" />
 
     <!--    <ImageView
         android:id="@+id/bottom_sheet_detail_imageView"
